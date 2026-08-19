@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>גופים לפיתוח כלכלי בגליל המזרחי</title>
+<meta name="description" content="מיפוי מאוחד של הגופים הפועלים בתחום הפיתוח הכלכלי בגליל המזרחי — מרכז הידע האזורי גליל מזרחי־מערבי.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap">
+<style>
+/* ---------------------------------------------------------------- tokens */
+:root {
+  /* הפלטה נגזרת מהלוגו של מרכז הידע: כחול־נייבי של הכיתוב, טורקיז, חול ומגנטה מהפסיפס */
+  --ink:        #1B2A4E;
+  --body:       #3A465F;
+  --muted:      #6B7690;
+  --ground:     #FFFFFF;   /* רקע לבן, כדי שההטמעה תתמזג עם רקע ה-Experience */
+  --surface:    #FFFFFF;
+  --surface-2:  #F7F9FC;   /* רק לשדות קלט ולתגיות, כדי שיובחנו מהרקע */
+  --line:       #DBE2EC;
+  --line-soft:  #EAEFF5;
+
+  --core:       #0F7DA8;   /* ליבה */
+  --core-soft:  #E6F2F8;
+  --adjacent:   #B4894B;   /* משיק */
+  --adj-soft:   #F7F1E6;
+  --new:        #9E2896;   /* סימון ארגון שנוסף */
+
+  --focus:      #0F7DA8;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+
+  --sans: "Assistant", "Segoe UI", "Arial Hebrew", Arial, sans-serif;
+  --serif: "Frank Ruhl Libre", "Times New Roman", Georgia, serif;
+
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+h1, h2, h3 { margin: 0; color: var(--ink); text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--core); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+::selection { background: var(--core-soft); }
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 0 20px 72px; }
+
+/* -------------------------------------------------------------- masthead */
+.masthead {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.masthead-in {
+  max-width: 1080px; margin: 0 auto; padding: 22px 20px 20px;
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+}
+.masthead img { height: 46px; width: auto; }
+.masthead-text { min-width: 240px; flex: 1; }
+.masthead h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.85rem);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.masthead p {
+  margin-top: 4px; color: var(--muted); font-size: .92rem;
+}
+
+/* ------------------------------------------------------------- kpi strip */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin: 26px 0 22px;
+}
+.kpi { background: var(--surface); padding: 14px 16px; }
+@media (max-width: 720px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+.kpi-val {
+  font-size: 1.7rem; font-weight: 700; color: var(--ink); line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-lbl {
+  font-size: .74rem; font-weight: 600; color: var(--muted);
+  letter-spacing: .06em; margin-top: 3px;
+}
+
+/* ---------------------------------------------------------------- panels */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.panel-title {
+  font-family: var(--serif); font-weight: 500; font-size: 1rem;
+  color: var(--ink); margin-bottom: 14px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.panel-title .hint { font-family: var(--sans); font-size: .78rem; color: var(--muted); font-weight: 500; }
+
+/* --------------------------------------------------------------- filters */
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 12px;
+}
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label {
+  font-size: .74rem; font-weight: 600; color: var(--muted); letter-spacing: .05em;
+}
+.field input, .field select {
+  font-family: inherit; font-size: .92rem; color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 8px 11px;
+  width: 100%;
+  appearance: none;
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236B7690' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: left 11px center;
+  background-repeat: no-repeat;
+  padding-left: 30px;
+}
+.field input::placeholder { color: #9AA4BA; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.chip {
+  font-family: inherit; font-size: .8rem; font-weight: 500;
+  color: var(--body); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 100px;
+  padding: 4px 11px; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.chip:hover { border-color: var(--core); color: var(--core); }
+.chip[aria-pressed="true"] {
+  background: var(--ink); border-color: var(--ink); color: #fff;
+}
+.chip-count {
+  opacity: .6; font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate; margin-inline-start: 6px;
+}
+
+.filter-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-top: 14px;
+  padding-top: 12px; border-top: 1px solid var(--line-soft);
+}
+.result-count { font-size: .88rem; color: var(--body); font-weight: 600; }
+.result-count b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.btn-reset {
+  font-family: inherit; font-size: .83rem; font-weight: 600; color: var(--core);
+  background: none; border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 5px 12px; cursor: pointer;
+}
+.btn-reset:hover { border-color: var(--core); background: var(--core-soft); }
+
+/* ------------------------------------------------------------ dist bars */
+.bars { display: flex; flex-direction: column; gap: 7px; }
+.bar-row {
+  display: grid; grid-template-columns: minmax(96px, 148px) 1fr 34px;
+  align-items: center; gap: 10px;
+  background: none; border: 0; padding: 2px 0; width: 100%;
+  font-family: inherit; cursor: pointer; text-align: start;
+}
+.bar-label { font-size: .82rem; color: var(--body); }
+.bar-track {
+  display: block; height: 9px; background: var(--line-soft);
+  border-radius: 100px; overflow: hidden;
+}
+.bar-fill {
+  display: block; height: 100%; min-width: 3px; background: var(--core);
+  border-radius: 100px; transition: width .25s ease;
+}
+.bar-num {
+  font-size: .78rem; color: var(--muted); text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+.bar-row:hover .bar-label { color: var(--core); }
+.bar-row[aria-pressed="true"] .bar-label { color: var(--ink); font-weight: 700; }
+.bar-row[aria-pressed="true"] .bar-fill { background: var(--ink); }
+
+/* ----------------------------------------------------------------- cards */
+.results { display: flex; flex-direction: column; gap: 14px; }
+.org {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--core);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+}
+.org[data-relevance="משיק"] { border-inline-start-color: var(--adjacent); }
+.org:target { outline: 2px solid var(--core); outline-offset: 3px; }
+
+.org-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.org-name { font-size: 1.08rem; font-weight: 700; line-height: 1.35; }
+.org-alias { font-size: .82rem; color: var(--muted); font-weight: 500; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.badge {
+  font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+  padding: 2px 9px; border-radius: 100px;
+  border: 1px solid var(--line); color: var(--muted); background: var(--surface-2);
+}
+.badge-core { color: var(--core); background: var(--core-soft); border-color: #C9E3EE; }
+.badge-adj  { color: var(--adjacent); background: var(--adj-soft); border-color: #E8DCC4; }
+.badge-new  { color: var(--new); background: #F8EAF6; border-color: #EACCE6; }
+
+.org-meta {
+  margin-top: 12px; font-size: .86rem; color: var(--body);
+  display: flex; flex-wrap: wrap; gap: 4px 18px;
+}
+.org-meta .k { color: var(--muted); font-weight: 600; }
+
+.org-intro { margin-top: 11px; font-size: .93rem; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.tag {
+  font-size: .74rem; font-weight: 500; color: var(--body);
+  background: var(--surface-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: 2px 8px;
+}
+.tag.derived { border-style: dashed; color: var(--muted); }
+
+details.actions { margin-top: 14px; border-top: 1px solid var(--line-soft); padding-top: 12px; }
+details.actions > summary {
+  cursor: pointer; list-style: none;
+  font-size: .85rem; font-weight: 600; color: var(--core);
+  display: flex; align-items: center; gap: 7px;
+}
+details.actions > summary::-webkit-details-marker { display: none; }
+details.actions > summary::before {
+  content: ""; width: 0; height: 0;
+  border-block: 4px solid transparent;
+  border-inline-end: 5px solid currentColor;
+  transition: transform .18s;
+}
+details.actions[open] > summary::before { transform: rotate(-90deg); }
+
+.action-list { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.action { border-inline-start: 2px solid var(--line); padding-inline-start: 12px; }
+.action-title { font-size: .9rem; font-weight: 700; color: var(--ink); }
+.action-body { font-size: .89rem; margin-top: 2px; }
+.partners { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; align-items: baseline; }
+.partners .k { font-size: .74rem; font-weight: 600; color: var(--muted); }
+.partner {
+  font-size: .74rem; color: var(--body);
+  background: var(--core-soft); border-radius: var(--r-sm); padding: 1px 7px;
+}
+.partners-note { font-size: .78rem; color: var(--muted); }
+
+.org-foot {
+  margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--line-soft);
+  font-size: .78rem; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 4px 16px;
+}
+.org-note { margin-top: 11px; font-size: .82rem; color: var(--muted); font-style: italic; }
+
+.empty {
+  background: var(--surface); border: 1px dashed var(--line);
+  border-radius: var(--r-lg); padding: 40px 20px; text-align: center; color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- legend */
+.legend { margin-top: 30px; }
+.legend > summary {
+  cursor: pointer; list-style: none;
+  font-family: var(--serif); font-size: 1rem; color: var(--ink);
+  padding: 14px 20px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  display: flex; align-items: center; gap: 8px;
+}
+.legend > summary::-webkit-details-marker { display: none; }
+.legend > summary::before {
+  content: ""; width: 0; height: 0;
+  border-block: 4px solid transparent;
+  border-inline-end: 5px solid var(--core);
+  transition: transform .18s;
+}
+.legend[open] > summary::before { transform: rotate(-90deg); }
+.legend-body {
+  background: var(--surface); border: 1px solid var(--line); border-top: 0;
+  border-radius: 0 0 var(--r-lg) var(--r-lg); margin-top: -14px;
+  padding: 22px 20px 20px;
+}
+.legend-item { padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+.legend-item:last-child { border-bottom: 0; }
+.legend-item dt { font-size: .87rem; font-weight: 700; color: var(--ink); }
+.legend-item dd { margin: 3px 0 0; font-size: .87rem; }
+
+footer.page-foot {
+  margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: .78rem; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+@media print {
+  .filters, .btn-reset { display: none; }
+  .org { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <img src="__LOGO__" alt="מרכז הידע האזורי גליל מזרחי־מערבי">
+    <div class="masthead-text">
+      <h1>גופים לפיתוח כלכלי בגליל המזרחי</h1>
+      <p>מיפוי מאוחד של קרנות, ארגונים מפעילים ומיזמים הפועלים במרחב</p>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+
+  <section class="kpis" aria-label="נתונים מסכמים">
+    <div class="kpi"><div class="kpi-val" id="kpiTotal">—</div><div class="kpi-lbl">ארגונים מוצגים</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiCore">—</div><div class="kpi-lbl">בליבת הפיתוח הכלכלי</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiLocal">—</div><div class="kpi-lbl">ממוקדים בגליל המזרחי</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiActions">—</div><div class="kpi-lbl">פעולות מתועדות</div></div>
+  </section>
+
+  <section class="panel filters" aria-label="סינון">
+    <div class="field-row">
+      <div class="field">
+        <label for="fq">חיפוש חופשי</label>
+        <input type="search" id="fq" placeholder="שם, תיאור, שותף או תגית">
+      </div>
+      <div class="field">
+        <label for="fRelevance">רלוונטיות</label>
+        <select id="fRelevance"><option value="">הכול</option></select>
+      </div>
+      <div class="field">
+        <label for="fType">סוג הגוף</label>
+        <select id="fType"><option value="">כל הסוגים</option></select>
+      </div>
+      <div class="field">
+        <label for="fScope">מרחב פעילות</label>
+        <select id="fScope"><option value="">כל המרחבים</option></select>
+      </div>
+      <div class="field">
+        <label for="fPlace">מקום שצוין</label>
+        <select id="fPlace"><option value="">כל המקומות</option></select>
+      </div>
+    </div>
+
+    <div class="chips" id="tagChips" role="group" aria-label="סינון לפי תגית"></div>
+
+    <div class="filter-foot">
+      <span class="result-count" id="resultCount"></span>
+      <button type="button" class="btn-reset" id="btnReset">נקה סינון</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel-title">
+      התפלגות לפי תגית
+      <span class="hint">לחיצה על שורה מסננת לפיה</span>
+    </h2>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <div class="results" id="results"></div>
+
+  <details class="legend">
+    <summary>מקרא, מקורות וסייגים</summary>
+    <div class="legend-body">
+      <dl id="legendList"></dl>
+    </div>
+  </details>
+
+  <footer class="page-foot">
+    <span>מרכז הידע האזורי גליל מזרחי־מערבי</span>
+    <span>עודכן: __UPDATED__ &nbsp;·&nbsp; __COUNT__ ארגונים</span>
+  </footer>
+
+</main>
+
+<script>
+const PAYLOAD = /*__DATA__*/{};
+const ORGS = PAYLOAD.organizations;
+const LEGEND = PAYLOAD.legend;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const state = { q: "", relevance: "", type: "", scope: "", place: "", tags: new Set() };
+
+/* -------------------------------------------------- vocabularies from data */
+const uniq = (arr) => [...new Set(arr.filter(Boolean))];
+const RELEVANCE = uniq(ORGS.map(o => o.relevance));
+const TYPES = uniq(ORGS.map(o => o.typeGroup)).sort((a, b) => a.localeCompare(b, "he"));
+const SCOPES = ["מיקוד בגליל המזרחי", "צפון / גליל בהיקף רחב", "ארצי"]
+  .filter(s => ORGS.some(o => o.scope === s));
+const PLACES = uniq(ORGS.flatMap(o => o.places)).sort((a, b) => a.localeCompare(b, "he"));
+const TAGS = (() => {
+  const counts = new Map();
+  ORGS.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  const order = PAYLOAD.tagOrder || [];
+  return [...counts.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return counts.get(b) - counts.get(a) || a.localeCompare(b, "he");
+  });
+})();
+
+function fillSelect(el, values) {
+  values.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v; opt.textContent = v;
+    el.appendChild(opt);
+  });
+}
+fillSelect($("fRelevance"), RELEVANCE);
+fillSelect($("fType"), TYPES);
+fillSelect($("fScope"), SCOPES);
+fillSelect($("fPlace"), PLACES);
+
+/* ------------------------------------------------------------- searchable */
+ORGS.forEach(o => {
+  o._hay = [
+    o.name, ...(o.aliases || []), o.type, o.typeGroup, o.areaText, o.intro,
+    ...o.tags, ...o.partners,
+    ...o.actions.map(a => a.title + " " + a.body)
+  ].join(" ").toLowerCase();
+});
+
+/* ----------------------------------------------------------------- filter */
+function matches(o) {
+  if (state.q && !o._hay.includes(state.q)) return false;
+  if (state.relevance && o.relevance !== state.relevance) return false;
+  if (state.type && o.typeGroup !== state.type) return false;
+  if (state.scope && o.scope !== state.scope) return false;
+  if (state.place && !o.places.includes(state.place)) return false;
+  for (const t of state.tags) if (!o.tags.includes(t)) return false;
+  return true;
+}
+
+/* ------------------------------------------------------------------ views */
+function renderKpis(rows) {
+  $("kpiTotal").textContent = rows.length;
+  $("kpiCore").textContent = rows.filter(o => o.relevance === "ליבה").length;
+  $("kpiLocal").textContent = rows.filter(o => o.scope === "מיקוד בגליל המזרחי").length;
+  $("kpiActions").textContent = rows.reduce((n, o) => n + o.actions.length, 0);
+}
+
+function renderChips(rows) {
+  const counts = new Map();
+  rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  $("tagChips").innerHTML = TAGS.map(t => {
+    const n = counts.get(t) || 0;
+    const on = state.tags.has(t);
+    if (!n && !on) return "";
+    return `<button type="button" class="chip" aria-pressed="${on}" data-tag="${esc(t)}">`
+         + `${esc(t)}<span class="chip-count">${n}</span></button>`;
+  }).join("");
+}
+
+function renderBars(rows) {
+  const counts = new Map();
+  rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const max = top.length ? top[0][1] : 1;
+  $("bars").innerHTML = top.length === 0
+    ? `<p class="bar-label">אין נתונים להצגה בסינון הנוכחי.</p>`
+    : top.map(([tag, n]) => `
+      <button type="button" class="bar-row" data-tag="${esc(tag)}" aria-pressed="${state.tags.has(tag)}">
+        <span class="bar-label">${esc(tag)}</span>
+        <span class="bar-track"><span class="bar-fill" style="width:${Math.round(n / max * 100)}%"></span></span>
+        <span class="bar-num">${n}</span>
+      </button>`).join("");
+}
+
+function actionHtml(a) {
+  const partners = a.partners.length || a.partnersNote
+    ? `<div class="partners"><span class="k">בשיתוף</span>`
+      + a.partners.map(p => `<span class="partner">${esc(p)}</span>`).join("")
+      + (a.partnersNote ? `<span class="partners-note">${esc(a.partnersNote)}</span>` : "")
+      + `</div>`
+    : "";
+  return `<div class="action">`
+    + (a.title ? `<div class="action-title">${esc(a.title)}</div>` : "")
+    + `<div class="action-body">${esc(a.body)}</div>${partners}</div>`;
+}
+
+function orgHtml(o) {
+  const badgeClass = o.relevance === "ליבה" ? "badge-core" : "badge-adj";
+  const alias = o.aliases && o.aliases.length
+    ? `<span class="org-alias">ידוע גם כ: ${esc(o.aliases.join(", "))}</span>` : "";
+  const meta = [
+    o.areaText ? `<span><span class="k">מרחב פעילות</span> ${esc(o.areaText)}</span>` : "",
+    o.website ? `<span><a href="${esc(o.website)}" target="_blank" rel="noopener noreferrer">אתר הארגון</a></span>` : ""
+  ].join("");
+
+  return `<article class="org" id="${esc(o.id)}" data-relevance="${esc(o.relevance)}">
+    <div class="org-head"><h3 class="org-name">${esc(o.name)}</h3>${alias}</div>
+    <div class="badges">
+      <span class="badge ${badgeClass}">${esc(o.relevance)}</span>
+      <span class="badge">${esc(o.typeGroup)}</span>
+      ${o.type && o.type !== o.typeGroup ? `<span class="badge">${esc(o.type)}</span>` : ""}
+      ${o.isAddition ? `<span class="badge badge-new">נוסף במקורות פתוחים</span>` : ""}
+    </div>
+    ${meta ? `<div class="org-meta">${meta}</div>` : ""}
+    ${o.intro ? `<p class="org-intro">${esc(o.intro).replace(/\n/g, "<br>")}</p>` : ""}
+    ${o.tags.length ? `<div class="tags">${o.tags.map(t =>
+        `<span class="tag${o.tagsDerived ? " derived" : ""}">${esc(t)}</span>`).join("")}</div>` : ""}
+    ${o.actions.length ? `<details class="actions">
+        <summary>${o.actions.length} פעולות במרחב</summary>
+        <div class="action-list">${o.actions.map(actionHtml).join("")}</div>
+      </details>` : ""}
+    ${o.note ? `<p class="org-note">${esc(o.note)}</p>` : ""}
+    <div class="org-foot">
+      ${o.sources.length ? `<span>מקורות: ${esc(o.sources.join(" · "))}</span>` : ""}
+      ${o.tagsDerived ? `<span>התגיות הושלמו מתוך התיאור</span>` : ""}
+    </div>
+  </article>`;
+}
+
+function render() {
+  const rows = ORGS.filter(matches);
+  renderKpis(rows);
+  renderChips(rows);
+  renderBars(rows);
+  $("resultCount").innerHTML = `<b>${rows.length}</b> מתוך <b>${ORGS.length}</b> ארגונים`;
+  $("results").innerHTML = rows.length
+    ? rows.map(orgHtml).join("")
+    : `<div class="empty">לא נמצאו ארגונים התואמים את הסינון. נסו לנקות חלק מהמסננים.</div>`;
+}
+
+/* ------------------------------------------------------------------ events */
+$("fq").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
+[["fRelevance", "relevance"], ["fType", "type"], ["fScope", "scope"], ["fPlace", "place"]]
+  .forEach(([id, key]) => $(id).addEventListener("change", e => { state[key] = e.target.value; render(); }));
+
+function toggleTag(tag) {
+  state.tags.has(tag) ? state.tags.delete(tag) : state.tags.add(tag);
+  render();
+}
+$("tagChips").addEventListener("click", e => {
+  const btn = e.target.closest("[data-tag]");
+  if (btn) toggleTag(btn.dataset.tag);
+});
+$("bars").addEventListener("click", e => {
+  const btn = e.target.closest("[data-tag]");
+  if (btn) toggleTag(btn.dataset.tag);
+});
+$("btnReset").addEventListener("click", () => {
+  Object.assign(state, { q: "", relevance: "", type: "", scope: "", place: "" });
+  state.tags.clear();
+  $("fq").value = "";
+  ["fRelevance", "fType", "fScope", "fPlace"].forEach(id => { $(id).value = ""; });
+  render();
+});
+
+/* ---- פרמטרים ב-URL: מאפשרים לפתוח את הדף כשהוא כבר מסונן, למשל מתוך מפה ---- */
+(function readUrl() {
+  const p = new URLSearchParams(location.search);
+  const set = (param, key, el) => {
+    const v = p.get(param);
+    if (!v) return;
+    state[key] = v;
+    if (el) $(el).value = v;
+  };
+  set("q", "q", "fq");
+  if (state.q) { state.q = state.q.toLowerCase(); }
+  set("relevance", "relevance", "fRelevance");
+  set("type", "type", "fType");
+  set("scope", "scope", "fScope");
+  set("place", "place", "fPlace");
+  (p.get("tag") || "").split(",").filter(Boolean).forEach(t => state.tags.add(t));
+})();
+
+/* ------------------------------------------------------------------ legend */
+$("legendList").innerHTML = LEGEND.map(l =>
+  `<div class="legend-item"><dt>${esc(l.topic)}</dt><dd>${esc(l.text)}</dd></div>`).join("");
+
+render();
+
+/* פתיחת כרטיס שהופנו אליו ישירות בכתובת (#id) */
+if (location.hash) {
+  const el = document.querySelector(location.hash);
+  if (el) { el.querySelector("details.actions")?.setAttribute("open", ""); el.scrollIntoView(); }
+}
+</script>
+</body>
+</html>
