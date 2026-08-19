@@ -23,8 +23,9 @@ import openpyxl
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from curation import (  # noqa: E402
-    DOMAIN_TAGS, ENRICHMENTS, INTERNAL_NOTE_MARKERS, PLACE_TOKENS,
-    SCOPE_RULES, TAG_COMPLETIONS, TAG_MAP, TEXT_FIXES, TONE_EDITS, TYPE_GROUPS,
+    DOMAIN_TAGS, ENRICHMENTS, INTERNAL_NOTE_MARKERS, PERSONAL_REDACTIONS,
+    PLACE_TOKENS, SCOPE_RULES, TAG_COMPLETIONS, TAG_MAP, TEXT_FIXES, TONE_EDITS,
+    TYPE_GROUPS,
 )
 from additions import ADDITIONS  # noqa: E402
 
@@ -38,7 +39,7 @@ TYPE_OF_GROUP = {t: g for g, types in TYPE_GROUPS.items() for t in types}
 def apply_text_fixes(text):
     if not text:
         return ""
-    for pattern, repl in TEXT_FIXES:
+    for pattern, repl in TEXT_FIXES + PERSONAL_REDACTIONS:
         text = re.sub(pattern, repl, text)
     return text.strip()
 
