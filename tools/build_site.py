@@ -53,6 +53,9 @@ def main():
     for org in payload["organizations"]:
         for field in BUILD_ONLY:
             org.pop(field, None)
+        # חלק מתשובות "בשיתוף" בקובץ המקור הן משפט ולא רשימת שותפים
+        for action in org["actions"]:
+            action.pop("partnersNote", None)
 
     logo = "data:image/jpeg;base64," + base64.b64encode(shrink_logo()).decode()
 

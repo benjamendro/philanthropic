@@ -24,8 +24,8 @@ import openpyxl
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from curation import (  # noqa: E402
     DOMAIN_TAGS, ENRICHMENTS, INTERNAL_NOTE_MARKERS, PERSONAL_REDACTIONS,
-    PLACE_TOKENS, SCOPE_RULES, TAG_COMPLETIONS, TAG_MAP, TEXT_FIXES, TONE_EDITS,
-    TYPE_GROUPS,
+    PLACE_TOKENS, PROCESS_NOTES, SCOPE_RULES, SOURCE_MAP, TAG_COMPLETIONS,
+    TAG_MAP, TEXT_FIXES, TONE_EDITS, TYPE_GROUPS,
 )
 from additions import ADDITIONS  # noqa: E402
 
@@ -153,6 +153,28 @@ def scope_of(area_text):
     return "ארצי"
 
 
+DOMAIN_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9.\-]*\.[a-zA-Z]{2,}$")
+
+
+def normalize_sources(raw):
+    """מתרגם את ערכי המקור לשמות המוצגים.
+
+    ארבעת קבצי המיפוי מקובצים לשמות ציבוריים לפי SOURCE_MAP, ומהמקורות
+    הפתוחים נשמרות כתובות אתרים בלבד — לא עיתונות, ויקיפדיה או שמות קבצים.
+    """
+    out = []
+    for token in re.split(r"\s\+\s|,", raw or ""):
+        token = token.replace("מקורות פתוחים –", "").strip(" .–-")
+        if not token:
+            continue
+        value = SOURCE_MAP.get(token)
+        if value is None and DOMAIN_RE.match(token):
+            value = token
+        if value and value not in out:
+            out.append(value)
+    return out
+
+
 def slugify(name):
     s = unicodedata.normalize("NFKD", name)
     s = re.sub(r"[^\w֐-׿]+", "-", s).strip("-")
@@ -184,12 +206,15 @@ def build_record(row, is_addition=False):
     tags, tags_derived = normalize_tags(row["קטגוריות ותגיות"], name)
 
     note_raw = apply_text_fixes(row.get("הערות") or "")
-    public_note, internal_note = split_note(note_raw)
+    if name in PROCESS_NOTES:
+        public_note, internal_note = "", note_raw
+    else:
+        public_note, internal_note = split_note(note_raw)
     if enrich.get("note"):
         public_note = (public_note + " " + enrich["note"]).strip()
 
     org_type = (row["סוג הגוף"] or "").strip()
-    sources = [s.strip() for s in re.split(r"\s\+\s", row["מקורות המידע"] or "") if s.strip()]
+    sources = normalize_sources(row["מקורות המידע"])
 
     return {
         "id": slugify(name),

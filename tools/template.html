@@ -267,7 +267,6 @@ details.actions[open] > summary::before { transform: rotate(-90deg); }
   font-size: .74rem; color: var(--body);
   background: var(--core-soft); border-radius: var(--r-sm); padding: 1px 7px;
 }
-.partners-note { font-size: .78rem; color: var(--muted); }
 
 .org-note { margin-top: 11px; font-size: .82rem; color: var(--muted); font-style: italic; }
 
@@ -326,7 +325,7 @@ footer.page-foot {
     <div class="masthead-text">
       <h1>ארגונים העוסקים בפיתוח כלכלי בגליל המזרחי</h1>
       <p>קרנות, ארגונים מפעילים ומיזמים הפועלים באזור</p>
-      <p class="sources-line">מבוסס על מיפוי ארגוני NorthTech, מיפוי מרכז הידע גליל מזרחי ומערבי ומקורות פתוחים</p>
+      <p class="sources-line">מבוסס על מיפוי FronTech, מיפוי מרכז הידע גליל מזרחי ומערבי, גיידסטאר, מרשם העמותות ומקורות פתוחים</p>
     </div>
   </div>
 </header>
@@ -390,7 +389,7 @@ footer.page-foot {
   </details>
 
   <footer class="page-foot">
-    <span>מקורות: מיפוי ארגוני NorthTech, מיפוי מרכז הידע גליל מזרחי ומערבי ומקורות פתוחים.</span>
+    <span>מקורות: מיפוי FronTech, מיפוי מרכז הידע גליל מזרחי ומערבי, גיידסטאר, מרשם העמותות ומקורות פתוחים.</span>
     <span>עודכן __UPDATED__ &nbsp;·&nbsp; __COUNT__ ארגונים</span>
   </footer>
 
@@ -493,10 +492,9 @@ function renderBars(rows) {
 }
 
 function actionHtml(a) {
-  const partners = a.partners.length || a.partnersNote
+  const partners = a.partners.length
     ? `<div class="partners"><span class="k">בשיתוף</span>`
       + a.partners.map(p => `<span class="partner">${esc(p)}</span>`).join("")
-      + (a.partnersNote ? `<span class="partners-note">${esc(a.partnersNote)}</span>` : "")
       + `</div>`
     : "";
   return `<div class="action">`
