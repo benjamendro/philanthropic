@@ -149,7 +149,7 @@ def scope_of(area_text):
         if keyword in area_text:
             return scope
     if "צפון" in area_text or "גליל" in area_text:
-        return "צפון / גליל בהיקף רחב"
+        return "צפון והגליל"
     return "ארצי"
 
 

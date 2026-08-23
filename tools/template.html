@@ -25,7 +25,6 @@
   --core-soft:  #E6F2F8;
   --adjacent:   #B4894B;   /* משיק */
   --adj-soft:   #F7F1E6;
-  --new:        #9E2896;   /* סימון ארגון שנוסף */
 
   --focus:      #0F7DA8;
 
@@ -83,6 +82,7 @@ summary:focus-visible {
 .masthead p {
   margin-top: 4px; color: var(--muted); font-size: .92rem;
 }
+.masthead .sources-line { margin-top: 6px; font-size: .8rem; }
 
 /* ------------------------------------------------------------- kpi strip */
 .kpis {
@@ -102,8 +102,7 @@ summary:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 .kpi-lbl {
-  font-size: .74rem; font-weight: 600; color: var(--muted);
-  letter-spacing: .06em; margin-top: 3px;
+  font-size: .76rem; font-weight: 600; color: var(--muted); margin-top: 3px;
 }
 
 /* ---------------------------------------------------------------- panels */
@@ -129,7 +128,7 @@ summary:focus-visible {
 }
 .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .field label {
-  font-size: .74rem; font-weight: 600; color: var(--muted); letter-spacing: .05em;
+  font-size: .76rem; font-weight: 600; color: var(--muted);
 }
 .field input, .field select {
   font-family: inherit; font-size: .92rem; color: var(--ink);
@@ -218,17 +217,15 @@ summary:focus-visible {
 
 .org-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
 .org-name { font-size: 1.08rem; font-weight: 700; line-height: 1.35; }
-.org-alias { font-size: .82rem; color: var(--muted); font-weight: 500; }
 
 .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
 .badge {
-  font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+  font-size: .74rem; font-weight: 600;
   padding: 2px 9px; border-radius: 100px;
   border: 1px solid var(--line); color: var(--muted); background: var(--surface-2);
 }
 .badge-core { color: var(--core); background: var(--core-soft); border-color: #C9E3EE; }
 .badge-adj  { color: var(--adjacent); background: var(--adj-soft); border-color: #E8DCC4; }
-.badge-new  { color: var(--new); background: #F8EAF6; border-color: #EACCE6; }
 
 .org-meta {
   margin-top: 12px; font-size: .86rem; color: var(--body);
@@ -244,7 +241,6 @@ summary:focus-visible {
   background: var(--surface-2); border: 1px solid var(--line-soft);
   border-radius: var(--r-sm); padding: 2px 8px;
 }
-.tag.derived { border-style: dashed; color: var(--muted); }
 
 details.actions { margin-top: 14px; border-top: 1px solid var(--line-soft); padding-top: 12px; }
 details.actions > summary {
@@ -273,11 +269,6 @@ details.actions[open] > summary::before { transform: rotate(-90deg); }
 }
 .partners-note { font-size: .78rem; color: var(--muted); }
 
-.org-foot {
-  margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--line-soft);
-  font-size: .78rem; color: var(--muted);
-  display: flex; flex-wrap: wrap; gap: 4px 16px;
-}
 .org-note { margin-top: 11px; font-size: .82rem; color: var(--muted); font-style: italic; }
 
 .empty {
@@ -334,7 +325,8 @@ footer.page-foot {
     <img src="__LOGO__" alt="מרכז הידע האזורי גליל מזרחי־מערבי">
     <div class="masthead-text">
       <h1>גופים לפיתוח כלכלי בגליל המזרחי</h1>
-      <p>מיפוי מאוחד של קרנות, ארגונים מפעילים ומיזמים הפועלים במרחב</p>
+      <p>קרנות, ארגונים מפעילים ומיזמים הפועלים באזור</p>
+      <p class="sources-line">מבוסס על מיפוי ארגוני NorthTech, מיפוי מרכז הידע גליל מזרחי ומערבי ומקורות פתוחים</p>
     </div>
   </div>
 </header>
@@ -342,10 +334,10 @@ footer.page-foot {
 <main class="shell">
 
   <section class="kpis" aria-label="נתונים מסכמים">
-    <div class="kpi"><div class="kpi-val" id="kpiTotal">—</div><div class="kpi-lbl">ארגונים מוצגים</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiCore">—</div><div class="kpi-lbl">בליבת הפיתוח הכלכלי</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiLocal">—</div><div class="kpi-lbl">ממוקדים בגליל המזרחי</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiActions">—</div><div class="kpi-lbl">פעולות מתועדות</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiTotal">—</div><div class="kpi-lbl">ארגונים</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiCore">—</div><div class="kpi-lbl">ליבה</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiLocal">—</div><div class="kpi-lbl">בגליל המזרחי</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiActions">—</div><div class="kpi-lbl">פעולות ותוכניות</div></div>
   </section>
 
   <section class="panel filters" aria-label="סינון">
@@ -363,11 +355,11 @@ footer.page-foot {
         <select id="fType"><option value="">כל הסוגים</option></select>
       </div>
       <div class="field">
-        <label for="fScope">מרחב פעילות</label>
-        <select id="fScope"><option value="">כל המרחבים</option></select>
+        <label for="fScope">היקף הפעילות</label>
+        <select id="fScope"><option value="">כל ההיקפים</option></select>
       </div>
       <div class="field">
-        <label for="fPlace">מקום שצוין</label>
+        <label for="fPlace">יישוב או אזור</label>
         <select id="fPlace"><option value="">כל המקומות</option></select>
       </div>
     </div>
@@ -382,8 +374,8 @@ footer.page-foot {
 
   <section class="panel">
     <h2 class="panel-title">
-      התפלגות לפי תגית
-      <span class="hint">לחיצה על שורה מסננת לפיה</span>
+      תגיות נפוצות
+      <span class="hint">לחצו לסינון</span>
     </h2>
     <div class="bars" id="bars"></div>
   </section>
@@ -391,15 +383,15 @@ footer.page-foot {
   <div class="results" id="results"></div>
 
   <details class="legend">
-    <summary>מקרא, מקורות וסייגים</summary>
+    <summary>מקרא והסברים</summary>
     <div class="legend-body">
       <dl id="legendList"></dl>
     </div>
   </details>
 
   <footer class="page-foot">
-    <span>מרכז הידע האזורי גליל מזרחי־מערבי</span>
-    <span>עודכן: __UPDATED__ &nbsp;·&nbsp; __COUNT__ ארגונים</span>
+    <span>מקורות: מיפוי ארגוני NorthTech, מיפוי מרכז הידע גליל מזרחי ומערבי ומקורות פתוחים.</span>
+    <span>עודכן __UPDATED__ &nbsp;·&nbsp; __COUNT__ ארגונים</span>
   </footer>
 
 </main>
@@ -419,7 +411,7 @@ const state = { q: "", relevance: "", type: "", scope: "", place: "", tags: new 
 const uniq = (arr) => [...new Set(arr.filter(Boolean))];
 const RELEVANCE = uniq(ORGS.map(o => o.relevance));
 const TYPES = uniq(ORGS.map(o => o.typeGroup)).sort((a, b) => a.localeCompare(b, "he"));
-const SCOPES = ["מיקוד בגליל המזרחי", "צפון / גליל בהיקף רחב", "ארצי"]
+const SCOPES = ["גליל מזרחי", "צפון והגליל", "ארצי"]
   .filter(s => ORGS.some(o => o.scope === s));
 const PLACES = uniq(ORGS.flatMap(o => o.places)).sort((a, b) => a.localeCompare(b, "he"));
 const TAGS = (() => {
@@ -469,7 +461,7 @@ function matches(o) {
 function renderKpis(rows) {
   $("kpiTotal").textContent = rows.length;
   $("kpiCore").textContent = rows.filter(o => o.relevance === "ליבה").length;
-  $("kpiLocal").textContent = rows.filter(o => o.scope === "מיקוד בגליל המזרחי").length;
+  $("kpiLocal").textContent = rows.filter(o => o.scope === "גליל מזרחי").length;
   $("kpiActions").textContent = rows.reduce((n, o) => n + o.actions.length, 0);
 }
 
@@ -491,7 +483,7 @@ function renderBars(rows) {
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
   const max = top.length ? top[0][1] : 1;
   $("bars").innerHTML = top.length === 0
-    ? `<p class="bar-label">אין נתונים להצגה בסינון הנוכחי.</p>`
+    ? ""
     : top.map(([tag, n]) => `
       <button type="button" class="bar-row" data-tag="${esc(tag)}" aria-pressed="${state.tags.has(tag)}">
         <span class="bar-label">${esc(tag)}</span>
@@ -514,34 +506,27 @@ function actionHtml(a) {
 
 function orgHtml(o) {
   const badgeClass = o.relevance === "ליבה" ? "badge-core" : "badge-adj";
-  const alias = o.aliases && o.aliases.length
-    ? `<span class="org-alias">ידוע גם כ: ${esc(o.aliases.join(", "))}</span>` : "";
   const meta = [
     o.areaText ? `<span><span class="k">מרחב פעילות</span> ${esc(o.areaText)}</span>` : "",
     o.website ? `<span><a href="${esc(o.website)}" target="_blank" rel="noopener noreferrer">אתר הארגון</a></span>` : ""
   ].join("");
 
   return `<article class="org" id="${esc(o.id)}" data-relevance="${esc(o.relevance)}">
-    <div class="org-head"><h3 class="org-name">${esc(o.name)}</h3>${alias}</div>
+    <div class="org-head"><h3 class="org-name">${esc(o.name)}</h3></div>
     <div class="badges">
       <span class="badge ${badgeClass}">${esc(o.relevance)}</span>
       <span class="badge">${esc(o.typeGroup)}</span>
       ${o.type && o.type !== o.typeGroup ? `<span class="badge">${esc(o.type)}</span>` : ""}
-      ${o.isAddition ? `<span class="badge badge-new">נוסף במקורות פתוחים</span>` : ""}
     </div>
     ${meta ? `<div class="org-meta">${meta}</div>` : ""}
     ${o.intro ? `<p class="org-intro">${esc(o.intro).replace(/\n/g, "<br>")}</p>` : ""}
     ${o.tags.length ? `<div class="tags">${o.tags.map(t =>
-        `<span class="tag${o.tagsDerived ? " derived" : ""}">${esc(t)}</span>`).join("")}</div>` : ""}
+        `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
     ${o.actions.length ? `<details class="actions">
-        <summary>${o.actions.length} פעולות במרחב</summary>
+        <summary>${o.actions.length} פעולות</summary>
         <div class="action-list">${o.actions.map(actionHtml).join("")}</div>
       </details>` : ""}
     ${o.note ? `<p class="org-note">${esc(o.note)}</p>` : ""}
-    <div class="org-foot">
-      ${o.sources.length ? `<span>מקורות: ${esc(o.sources.join(" · "))}</span>` : ""}
-      ${o.tagsDerived ? `<span>התגיות הושלמו מתוך התיאור</span>` : ""}
-    </div>
   </article>`;
 }
 
@@ -553,7 +538,7 @@ function render() {
   $("resultCount").innerHTML = `<b>${rows.length}</b> מתוך <b>${ORGS.length}</b> ארגונים`;
   $("results").innerHTML = rows.length
     ? rows.map(orgHtml).join("")
-    : `<div class="empty">לא נמצאו ארגונים התואמים את הסינון. נסו לנקות חלק מהמסננים.</div>`;
+    : `<div class="empty">לא נמצאו ארגונים. נסו לנקות חלק מהמסננים.</div>`;
 }
 
 /* ------------------------------------------------------------------ events */

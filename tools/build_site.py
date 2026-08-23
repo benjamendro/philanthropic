@@ -47,9 +47,12 @@ def main():
     with open(DATA, encoding="utf-8") as f:
         payload = json.load(f)
 
-    # ההערות הפנימיות (אמירות על כשירות של צד שלישי) אינן נכללות בדף הפומבי
+    # שדות שהם מטא על תהליך הבנייה ולא מידע על הארגון. הם נשמרים ב-JSON
+    # לצורך מעקב, ואינם נכללים בדף הפומבי — גם לא בקוד המקור שלו.
+    BUILD_ONLY = ("internalNote", "sources", "isAddition", "tagsDerived")
     for org in payload["organizations"]:
-        org.pop("internalNote", None)
+        for field in BUILD_ONLY:
+            org.pop(field, None)
 
     logo = "data:image/jpeg;base64," + base64.b64encode(shrink_logo()).decode()
 
