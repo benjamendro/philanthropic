@@ -23,9 +23,9 @@ import openpyxl
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from curation import (  # noqa: E402
-    DOMAIN_TAGS, ENRICHMENTS, INTERNAL_NOTE_MARKERS, PERSONAL_REDACTIONS,
-    PLACE_TOKENS, PROCESS_NOTES, SCOPE_RULES, SOURCE_MAP, TAG_COMPLETIONS,
-    TAG_MAP, TEXT_FIXES, TONE_EDITS, TYPE_GROUPS,
+    AREA_TEXT_REWRITES, DOMAIN_TAGS, ENRICHMENTS, INTERNAL_NOTE_MARKERS,
+    PERSONAL_REDACTIONS, PLACE_TOKENS, PROCESS_NOTES, SCOPE_RULES, SOURCE_MAP,
+    TAG_COMPLETIONS, TAG_MAP, TEXT_FIXES, TONE_EDITS, TYPE_GROUPS,
 )
 from additions import ADDITIONS  # noqa: E402
 
@@ -134,7 +134,7 @@ def clean_area(text):
             text = left
         else:
             text = left
-    return text
+    return AREA_TEXT_REWRITES.get(text, text)
 
 
 def places_in(area_text, description):
