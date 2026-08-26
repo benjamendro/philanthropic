@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>עריכת מיפוי הארגונים</title>
+<title>__TITLE__ — עריכה</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
@@ -181,7 +181,7 @@ dialog::backdrop { background:rgba(27,42,78,.45); }
 <body>
 
 <header class="topbar">
-  <h1>מיפוי הארגונים</h1>
+  <h1>__TITLE__</h1>
   <span class="mode">מצב עריכה</span>
   <span class="spacer"></span>
   <span class="dirty" id="dirty"></span>
@@ -233,7 +233,8 @@ dialog::backdrop { background:rgba(27,42,78,.45); }
 
 <script>
 const BASELINE = /*__DATA__*/{};
-const STORE_KEY = "galilee-mapping-editor";
+const CONFIG   = /*__CONFIG__*/{};
+const STORE_KEY = "mapping-editor-" + CONFIG.key;
 
 const $ = id => document.getElementById(id);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -246,13 +247,21 @@ let query = "";
 
 /* --------------------------------------------------------- vocabularies */
 const uniq = a => [...new Set(a.filter(Boolean))];
+const listOf = key => uniq(BASELINE.organizations.flatMap(o =>
+  Array.isArray(o[key]) ? o[key] : (o[key] ? [o[key]] : [])));
+const byHe = (a, b) => a.localeCompare(b, "he");
+
 const VOCAB = {
-  relevance: uniq(BASELINE.organizations.map(o => o.relevance)),
-  typeGroup: uniq(BASELINE.organizations.map(o => o.typeGroup)).sort((a,b)=>a.localeCompare(b,"he")),
-  scope: ["גליל מזרחי", "צפון והגליל", "ארצי"],
-  places: uniq(BASELINE.organizations.flatMap(o => o.places)).sort((a,b)=>a.localeCompare(b,"he")),
-  tags: uniq(BASELINE.organizations.flatMap(o => o.tags)).sort((a,b)=>a.localeCompare(b,"he")),
+  relevance: listOf("relevance"),
+  typeGroup: listOf("typeGroup").sort(byHe),
+  scope: (CONFIG.facets.find(f => f.key === "scope") || {}).order || listOf("scope"),
+  places: listOf("places").sort(byHe),
+  tags: listOf("tags").sort(byHe),
 };
+
+/* השדות שכלי העריכה מציג נקבעים בהגדרת האתר */
+const SHOW = new Set(CONFIG.fields);
+const only = (key, html) => SHOW.has(key) ? html : "";
 
 /* -------------------------------------------------------------- storage */
 function loadSaved() {
@@ -334,30 +343,32 @@ function renderForm() {
       `<input type="text" data-k="name" value="${esc(org.name)}">`)}
 
     <div class="grid2">
-      ${field("רלוונטיות", org, "relevance",
-        `<select data-k="relevance">${opts(VOCAB.relevance, org.relevance)}</select>`)}
-      ${field("משפחת הגוף", org, "typeGroup",
-        `<select data-k="typeGroup">${opts(VOCAB.typeGroup, org.typeGroup)}</select>`)}
-      ${field("סוג הגוף (טקסט חופשי)", org, "type",
-        `<input type="text" data-k="type" value="${esc(org.type)}">`)}
-      ${field("היקף הפעילות", org, "scope",
-        `<select data-k="scope">${opts(VOCAB.scope, org.scope)}</select>`)}
+      ${only("relevance", field("רלוונטיות", org, "relevance",
+        `<select data-k="relevance">${opts(VOCAB.relevance, org.relevance)}</select>`))}
+      ${only("typeGroup", field("משפחת הגוף", org, "typeGroup",
+        `<select data-k="typeGroup">${opts(VOCAB.typeGroup, org.typeGroup)}</select>`))}
+      ${only("type", field("סוג הגוף (טקסט חופשי)", org, "type",
+        `<input type="text" data-k="type" value="${esc(org.type || "")}">`))}
+      ${only("scope", field("היקף הפעילות", org, "scope",
+        `<select data-k="scope">${opts(VOCAB.scope, org.scope)}</select>`))}
     </div>
 
-    ${field("מרחב פעילות (הטקסט שמוצג בכרטיס)", org, "areaText",
-      `<input type="text" data-k="areaText" value="${esc(org.areaText)}">`)}
+    ${only("areaText", field("מרחב פעילות (הטקסט שמוצג בכרטיס)", org, "areaText",
+      `<input type="text" data-k="areaText" value="${esc(org.areaText)}">`))}
 
-    ${field("יישובים לסינון", org, "places",
-      chips(VOCAB.places, org.places, "places") +
-      `<span class="help">רק יישובים שבתוך הגליל המזרחי.</span>`)}
+    ${only("places", field("יישובים לסינון", org, "places",
+      chips(VOCAB.places, org.places, "places")))}
 
-    ${field("תגיות", org, "tags",
+    ${only("tags", field("תגיות", org, "tags",
       chips(VOCAB.tags, org.tags, "tags") +
-      `<div class="row-btns"><button class="btn-ghost" data-cmd="add-tag">תגית חדשה</button></div>`)}
+      `<div class="row-btns"><button class="btn-ghost" data-cmd="add-tag">תגית חדשה</button></div>`))}
+    ${only("audience", field("אוכלוסיית יעד", org, "audience",
+      `<textarea data-k="audience" rows="2">${esc(org.audience || "")}</textarea>`))}
 
-    ${field("פסקת פתיחה", org, "intro",
-      `<textarea data-k="intro" rows="5">${esc(org.intro)}</textarea>`)}
+    ${only("intro", field("פסקת פתיחה", org, "intro",
+      `<textarea data-k="intro" rows="5">${esc(org.intro)}</textarea>`))}
 
+    ${!SHOW.has("actions") ? "" : `
     <div class="f">
       <label>פעולות ותוכניות${fieldChanged(org, "actions") ? `<span class="mark">●</span>` : ""}</label>
       <div class="acts">${org.actions.map((a, j) => `
@@ -378,15 +389,15 @@ function renderForm() {
         </div>`).join("")}
       </div>
       <div class="row-btns"><button class="btn-ghost" data-cmd="add-act">הוספת פעולה</button></div>
-    </div>
+    </div>`}
 
-    ${field("הערה", org, "note",
-      `<textarea data-k="note" rows="2">${esc(org.note)}</textarea>`)}
-    ${field("אתר הארגון", org, "website",
-      `<input type="url" data-k="website" value="${esc(org.website)}" dir="ltr">`)}
-    ${field("הערה פנימית", org, "internalNote",
+    ${only("note", field("הערה", org, "note",
+      `<textarea data-k="note" rows="2">${esc(org.note)}</textarea>`))}
+    ${only("website", field("אתר הארגון", org, "website",
+      `<input type="url" data-k="website" value="${esc(org.website || "")}" dir="ltr">`))}
+    ${only("internalNote", field("הערה פנימית", org, "internalNote",
       `<textarea data-k="internalNote" rows="2">${esc(org.internalNote || "")}</textarea>`
-      + `<span class="help">נשמרת בקובץ ואינה מוצגת בדף הפומבי.</span>`)}
+      + `<span class="help">נשמרת בקובץ ואינה מוצגת בדף הפומבי.</span>`))}
   </div>`;
 }
 
@@ -492,12 +503,17 @@ $("form").addEventListener("click", e => {
 $("btnAdd").addEventListener("click", () => {
   const name = prompt("שם הארגון החדש:");
   if (!name || !name.trim()) return;
-  data.organizations.unshift({
+  const blank = {
     id: "new-" + Date.now(), name: name.trim(), aliases: [],
-    type: "", typeGroup: VOCAB.typeGroup[0], relevance: VOCAB.relevance[0],
-    areaText: "", scope: "גליל מזרחי", places: [], tags: [],
-    intro: "", actions: [], partners: [], note: "", website: "",
-  });
+    areaText: "", places: [], tags: [], intro: "", actions: [],
+    partners: [], note: "", website: "",
+  };
+  if (SHOW.has("relevance")) blank.relevance = VOCAB.relevance[0];
+  if (SHOW.has("typeGroup")) blank.typeGroup = VOCAB.typeGroup[0];
+  if (SHOW.has("type"))      blank.type = "";
+  if (SHOW.has("scope"))     blank.scope = VOCAB.scope[0];
+  if (SHOW.has("audience"))  blank.audience = "";
+  data.organizations.unshift(blank);
   selected = 0; query = ""; $("q").value = "";
   save(); render();
 });
@@ -524,7 +540,8 @@ function summary() {
   const LABEL = {
     name:"שם", relevance:"רלוונטיות", typeGroup:"משפחת הגוף", type:"סוג הגוף",
     scope:"היקף הפעילות", areaText:"מרחב פעילות", places:"יישובים", tags:"תגיות",
-    intro:"פסקת פתיחה", note:"הערה", website:"אתר", actions:"פעולות",
+    audience:"אוכלוסיית יעד", intro:"פסקת פתיחה", note:"הערה",
+    internalNote:"הערה פנימית", website:"אתר", actions:"פעולות",
   };
   let n = 0;
   for (const org of data.organizations) {

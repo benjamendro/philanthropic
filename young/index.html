@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ארגונים הפועלים עם צעירים בגליל</title>
+<meta name="description" content="מיפוי הארגונים הפועלים עם צעירים בגליל ובצפון — מרכז הידע האזורי גליל מזרחי־מערבי.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap">
+<style>
+/* ---------------------------------------------------------------- tokens */
+:root {
+  /* הפלטה נגזרת מהלוגו של מרכז הידע: כחול־נייבי של הכיתוב, טורקיז, חול ומגנטה מהפסיפס */
+  --ink:        #1B2A4E;
+  --body:       #3A465F;
+  --muted:      #6B7690;
+  --ground:     #FFFFFF;   /* רקע לבן, כדי שההטמעה תתמזג עם רקע ה-Experience */
+  --surface:    #FFFFFF;
+  --surface-2:  #F7F9FC;   /* רק לשדות קלט ולתגיות, כדי שיובחנו מהרקע */
+  --line:       #DBE2EC;
+  --line-soft:  #EAEFF5;
+
+  --core:       #0F7DA8;   /* ליבה */
+  --core-soft:  #E6F2F8;
+  --adjacent:   #B4894B;   /* משיק */
+  --adj-soft:   #F7F1E6;
+
+  --focus:      #0F7DA8;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+
+  --sans: "Assistant", "Segoe UI", "Arial Hebrew", Arial, sans-serif;
+  --serif: "Frank Ruhl Libre", "Times New Roman", Georgia, serif;
+
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+h1, h2, h3 { margin: 0; color: var(--ink); text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--core); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+::selection { background: var(--core-soft); }
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 0 20px 72px; }
+
+/* -------------------------------------------------------------- masthead */
+.masthead {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.masthead-in {
+  max-width: 1080px; margin: 0 auto; padding: 22px 20px 20px;
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+}
+.masthead img { height: 46px; width: auto; }
+.masthead-text { min-width: 240px; flex: 1; }
+.masthead h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.85rem);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.masthead p {
+  margin-top: 4px; color: var(--muted); font-size: .92rem;
+}
+.masthead .sources-line { margin-top: 6px; font-size: .8rem; }
+
+/* ------------------------------------------------------------- kpi strip */
+/* flex ולא grid, כדי שמספר המדדים ייקבע לפי המיפוי בלי להשאיר תא ריק */
+.kpis {
+  display: flex; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin: 26px 0 22px;
+}
+.kpi {
+  flex: 1 1 130px; padding: 14px 16px;
+  border-inline-start: 1px solid var(--line);
+}
+.kpi:first-child { border-inline-start: 0; }
+.kpi-val {
+  font-size: 1.7rem; font-weight: 700; color: var(--ink); line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-lbl {
+  font-size: .76rem; font-weight: 600; color: var(--muted); margin-top: 3px;
+}
+
+/* ---------------------------------------------------------------- panels */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.panel-title {
+  font-family: var(--serif); font-weight: 500; font-size: 1rem;
+  color: var(--ink); margin-bottom: 14px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.panel-title .hint { font-family: var(--sans); font-size: .78rem; color: var(--muted); font-weight: 500; }
+
+/* --------------------------------------------------------------- filters */
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 12px;
+}
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label {
+  font-size: .76rem; font-weight: 600; color: var(--muted);
+}
+.field input, .field select {
+  font-family: inherit; font-size: .92rem; color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 8px 11px;
+  width: 100%;
+  appearance: none;
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236B7690' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: left 11px center;
+  background-repeat: no-repeat;
+  padding-left: 30px;
+}
+.field input::placeholder { color: #9AA4BA; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.chip {
+  font-family: inherit; font-size: .8rem; font-weight: 500;
+  color: var(--body); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 100px;
+  padding: 4px 11px; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.chip:hover { border-color: var(--core); color: var(--core); }
+.chip[aria-pressed="true"] {
+  background: var(--ink); border-color: var(--ink); color: #fff;
+}
+.chip-count {
+  opacity: .6; font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate; margin-inline-start: 6px;
+}
+
+.filter-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-top: 14px;
+  padding-top: 12px; border-top: 1px solid var(--line-soft);
+}
+.result-count { font-size: .88rem; color: var(--body); font-weight: 600; }
+.result-count b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.btn-reset {
+  font-family: inherit; font-size: .83rem; font-weight: 600; color: var(--core);
+  background: none; border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 5px 12px; cursor: pointer;
+}
+.btn-reset:hover { border-color: var(--core); background: var(--core-soft); }
+
+/* ------------------------------------------------------------ dist bars */
+.bars { display: flex; flex-direction: column; gap: 7px; }
+.bar-row {
+  display: grid; grid-template-columns: minmax(96px, 148px) 1fr 34px;
+  align-items: center; gap: 10px;
+  background: none; border: 0; padding: 2px 0; width: 100%;
+  font-family: inherit; cursor: pointer; text-align: start;
+}
+.bar-label { font-size: .82rem; color: var(--body); }
+.bar-track {
+  display: block; height: 9px; background: var(--line-soft);
+  border-radius: 100px; overflow: hidden;
+}
+.bar-fill {
+  display: block; height: 100%; min-width: 3px; background: var(--core);
+  border-radius: 100px; transition: width .25s ease;
+}
+.bar-num {
+  font-size: .78rem; color: var(--muted); text-align: start;
+  font-variant-numeric: tabular-nums;
+}
+.bar-row:hover .bar-label { color: var(--core); }
+.bar-row[aria-pressed="true"] .bar-label { color: var(--ink); font-weight: 700; }
+.bar-row[aria-pressed="true"] .bar-fill { background: var(--ink); }
+
+/* ----------------------------------------------------------------- cards */
+.results { display: flex; flex-direction: column; gap: 14px; }
+.org {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--core);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+}
+.org[data-relevance="משיק"] { border-inline-start-color: var(--adjacent); }
+.org:target { outline: 2px solid var(--core); outline-offset: 3px; }
+
+.org-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.org-name { font-size: 1.08rem; font-weight: 700; line-height: 1.35; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.badge {
+  font-size: .74rem; font-weight: 600;
+  padding: 2px 9px; border-radius: 100px;
+  border: 1px solid var(--line); color: var(--muted); background: var(--surface-2);
+}
+.badge-core { color: var(--core); background: var(--core-soft); border-color: #C9E3EE; }
+.badge-adj  { color: var(--adjacent); background: var(--adj-soft); border-color: #E8DCC4; }
+
+.org-meta {
+  margin-top: 12px; font-size: .86rem; color: var(--body);
+  display: flex; flex-wrap: wrap; gap: 4px 18px;
+}
+.org-meta .k { color: var(--muted); font-weight: 600; }
+
+.org-intro { margin-top: 11px; font-size: .93rem; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.tag {
+  font-size: .74rem; font-weight: 500; color: var(--body);
+  background: var(--surface-2); border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm); padding: 2px 8px;
+}
+
+details.actions { margin-top: 14px; border-top: 1px solid var(--line-soft); padding-top: 12px; }
+details.actions > summary {
+  cursor: pointer; list-style: none;
+  font-size: .85rem; font-weight: 600; color: var(--core);
+  display: flex; align-items: center; gap: 7px;
+}
+details.actions > summary::-webkit-details-marker { display: none; }
+details.actions > summary::before {
+  content: ""; width: 0; height: 0;
+  border-block: 4px solid transparent;
+  border-inline-end: 5px solid currentColor;
+  transition: transform .18s;
+}
+details.actions[open] > summary::before { transform: rotate(-90deg); }
+
+.action-list { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.action { border-inline-start: 2px solid var(--line); padding-inline-start: 12px; }
+.action-title { font-size: .9rem; font-weight: 700; color: var(--ink); }
+.action-body { font-size: .89rem; margin-top: 2px; }
+.partners { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; align-items: baseline; }
+.partners .k { font-size: .74rem; font-weight: 600; color: var(--muted); }
+.partner {
+  font-size: .74rem; color: var(--body);
+  background: var(--core-soft); border-radius: var(--r-sm); padding: 1px 7px;
+}
+
+.org-note { margin-top: 11px; font-size: .82rem; color: var(--muted); font-style: italic; }
+
+.empty {
+  background: var(--surface); border: 1px dashed var(--line);
+  border-radius: var(--r-lg); padding: 40px 20px; text-align: center; color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- legend */
+.legend { margin-top: 30px; }
+.legend > summary {
+  cursor: pointer; list-style: none;
+  font-family: var(--serif); font-size: 1rem; color: var(--ink);
+  padding: 14px 20px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  display: flex; align-items: center; gap: 8px;
+}
+.legend > summary::-webkit-details-marker { display: none; }
+.legend > summary::before {
+  content: ""; width: 0; height: 0;
+  border-block: 4px solid transparent;
+  border-inline-end: 5px solid var(--core);
+  transition: transform .18s;
+}
+.legend[open] > summary::before { transform: rotate(-90deg); }
+.legend-body {
+  background: var(--surface); border: 1px solid var(--line); border-top: 0;
+  border-radius: 0 0 var(--r-lg) var(--r-lg); margin-top: -14px;
+  padding: 22px 20px 20px;
+}
+.legend-item { padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+.legend-item:last-child { border-bottom: 0; }
+.legend-item dt { font-size: .87rem; font-weight: 700; color: var(--ink); }
+.legend-item dd { margin: 3px 0 0; font-size: .87rem; }
+
+footer.page-foot {
+  margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: .78rem; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+@media print {
+  .filters, .btn-reset { display: none; }
+  .org { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <img src="data:image/jpeg;base64,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" alt="מרכז הידע האזורי גליל מזרחי־מערבי">
+    <div class="masthead-text">
+      <h1>ארגונים הפועלים עם צעירים בגליל</h1>
+      <p>מיפוי השחקנים בתחום הצעירים בגליל ובצפון</p>
+      <p class="sources-line">מבוסס על מסד הנתונים "שחקנים בתחום צעירים" ועל קבצי מיפוי של קרן רש"י</p>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+
+  <section class="kpis" id="kpis" aria-label="נתונים מסכמים"></section>
+
+  <section class="panel filters" aria-label="סינון">
+    <div class="field-row" id="fieldRow">
+      <div class="field">
+        <label for="fq">חיפוש חופשי</label>
+        <input type="search" id="fq" placeholder="שם, תיאור, שותף או תגית">
+      </div>
+    </div>
+
+    <div class="chips" id="tagChips" role="group" aria-label="סינון לפי תגית"></div>
+
+    <div class="filter-foot">
+      <span class="result-count" id="resultCount"></span>
+      <button type="button" class="btn-reset" id="btnReset">נקה סינון</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel-title">
+      תחומי פעילות
+      <span class="hint">לחצו לסינון</span>
+    </h2>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <div class="results" id="results"></div>
+
+  <details class="legend">
+    <summary>מקרא והסברים</summary>
+    <div class="legend-body">
+      <dl id="legendList"></dl>
+    </div>
+  </details>
+
+  <footer class="page-foot">
+    <span>מבוסס על מסד הנתונים "שחקנים בתחום צעירים" ועל קבצי מיפוי של קרן רש"י.</span>
+    <span>עודכן אוגוסט 2026 &nbsp;·&nbsp; 66 ארגונים</span>
+  </footer>
+
+</main>
+
+<script>
+const PAYLOAD = {"organizations":[{"id":"אגודת-הסטודנטים-תל-חי","name":"אגודת הסטודנטים תל חי","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["חינוך והשכלה"],"audience":"","intro":"יו\"ר אגודת הסטודנטים","actions":[{"title":"פעילות ופרויקטים","body":"עמותה רשומה נפרדת מהמכללה. בנוסף לעבודה שגרתית של המכללה בדאגה למלגות ואירועים לסטודנטים, פועלים כרגע לקדם פתרונות דיור, תעסוקה ותרבות לסטודנטים שיחזרו אחרי המלחמה. |","partners":[]}],"partners":[],"note":"","website":""},{"id":"אחוות-תורה","name":"אחוות תורה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"מקדמת ומפתחת קהילות לחרדים בעולם המעשה - מרחב קהילתי רוחני תומך ומעצים לחרדים המשלבים תורה ועבודה, תוך מתן מעטפת ליווי איכותית וביסוס מנועי פיתוח וצמיחה קהילתיים.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"איילים","name":"איילים","aliases":[],"areaText":"קריית שמונה, מטולה, עכו","scope":"כלל הגליל והצפון","places":["קריית שמונה","מטולה","עכו"],"tags":["תעסוקה ויזמות"],"audience":"סטודנטים צעירים","intro":"התיישבות, תרבות, יזמות חברתית","actions":[{"title":"פעילות ופרויקטים","body":"כפרי סטודנטים בקריית שמונה, מטולה, כרמיאל ועכו - הסטודנטים מקבלים מלגות ומשתלבים בעשייה קהילתית","partners":[]}],"partners":[],"note":"","website":""},{"id":"ארגון-121","name":"ארגון 121","aliases":[],"areaText":"עבודה מול האשכולות בצפון","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"עבודה ברמת המאקרו- שינוי מדיניות","intro":"1. חיזוק התשתיות החברתיות ורשת הביטחון החברתית-כלכלית 2. העצמת ארגונים החברתיים וחיזוקם","actions":[{"title":"פעילות ופרויקטים","body":"עוסקים בהיבט של המדיניות: בודקים מה קיים בכל מקום ובכל תחום, יוצרים שולחנות עגולים וועדות היגוי ומחקר ומגיעים לתובנות ונייר מדיניות. משם מתחילים לעבוד כדי לגרום למדינה לשנות מדיניות או לקדם מדיניות. תכניות בנושא תעסוקה- המקפצה - הכשרות מקצועיות. החוליה החלשה הם הלא אקדמאים, פריון נמוך, אם רוצים לשפר את מצבם צריך לעזור להם להשיג תעסוקה יותר איכותיות, הכשרה מקצועית למקצועות שבהם יש מעסיק בקצה.","partners":[]}],"partners":[],"note":"","website":""},{"id":"אשכול-גליל-מערבי-תחום-חברה-וקהילה","name":"אשכול גליל מערבי - תחום חברה וקהילה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"פעילויות ברשויות עצמן (מופיעות במיפוי בהתאם לתכניות): תנועת אור, תורנו, תרבות וגרעינים תורניים, פעילויות עם רוח הגליל, קרן שחף, משאבים.","intro":"","actions":[],"partners":[],"note":"","website":""},{"id":"ברנקו-וויס","name":"ברנקו וויס","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"משימתו של ברנקו וייס היא לטפח את ההון האנושי המקומי: התלמידים, אנשי החינוך וההנהגה המקומית, ולהעניק להם את הכלים להצלחה.","actions":[{"title":"פעילות ופרויקטים","body":"ליווי רשויות התבליך החזרה הביתה מהפריזמה החינוכית |","partners":[]}],"partners":[],"note":"","website":""},{"id":"ג-וינט-תבת","name":"ג'וינט תבת","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"Region Up - המהלך ארוך הטווח עוסק בתחום הפריון והתעסוקה, מייצר שיתופי פעולה בין כל הגורמים השונים בכל אזור - ממשלה, רשויות מקומיות, עסקים ועוד על מנת למצוא ולהתאים ביחד את הפתרונות החדשניים ביותר לבעיות התעסוקה והפריון של אותו אזור על בסיס הצרכים שלו, המאפיינים שלו ומנועי הצמיחה הייחודיים לו וכמטרה משותפת של כלל השחקנים בפרויקט.","actions":[],"partners":[],"note":"","website":""},{"id":"גוינט-אלכא-ומנהלת-תנופה","name":"גוינט אלכא ומנהלת תנופה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"מובילים את תכנית השיקום עבור משרד המנהלות בממשלה","actions":[{"title":"פעילות ופרויקטים","body":"מובילים את תכנית השיקום עבור משרד המנהלות בממשלה","partners":[]}],"partners":[],"note":"","website":""},{"id":"גלילה","name":"גלילה","aliases":[],"areaText":"כל הגליל","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"פועלים עם כל האוכלוסיות, פחות עם נוער. יותר צעירים, צרכים מיוחדים, גיל השלישי. פיתוח קהילות","intro":"העמותה פועלת לקדם, להוביל, ליצור ולתמוך בפרויקטים בכל תחומי החיים במטרה לשפר את איכות החיים של תושבי הפריפריה הצפונית","actions":[{"title":"פעילות ופרויקטים","body":"עבודה משותפת עם הביתה חוזרים לגליל , עם קרן הביתה ועם קדמה בכפרי הסטודנטים, עם האשכולות השונים. תכניות שתומכות ביזמות חברתית בגליל. שיפוץ מבנים וגני משחקים. פלטפורמה לשת\"פים של האשכולות, של הקרן הידידות ושל תכנית לשיקום הצפון. קרן לתמיכה בגליל באופן כללי","partners":[]}],"partners":[],"note":"","website":""},{"id":"גליליסט-וגלילווסט","name":"גליליסט וגלילווסט","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":["גליל מזרחי ומערבי"],"tags":["מנהיגות צעירה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"התכנית מיועדת למובילי שינוי בכירים הגרים ופועלים בגליל המזרחי – מהמגזר העסקי, מהחברה האזרחית, מהרשויות המקומיות מהאקדמיה וכיו\"ב. מופעל על ידי אשכול גליל מזרחי בשיתוף קרן ראודברג , מכללת תל-חי, קרן ביחד ופדרציית וונקובר.","partners":[]}],"partners":[],"note":"","website":""},{"id":"דרור-ישראל","name":"דרור ישראל","aliases":[],"areaText":"גולן, מבואות חרמון, מעלה יוסף, מרום גליל, מטה אשר, הגליל העליון, עכו, נהריה, קרית שמונה...","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"ילדים ונוער, נוער בסיכון, צעירים, אבות ובנים בחלוץ, הגיל השלישי, חיילים, עו\"סים","intro":"בוגרי תנועת הנוער העובד והלומד, פעילות נרחבת בכל הצפון","actions":[{"title":"פעילות ופרויקטים","body":"דרור ישראל היא המטריה שבה פועלת \"תורנו\". יש להם פעילויות רבות, בין היתר: קיבוצי מחנכים (כרמיאל ועכו), בתי חינוך ומכינה (קיבוץ רביד) והם מלווים מערכות חינוך פורמאליות ובלתי פורמאליות\", תנועת נוער (הנוע\"ל), מרכז הדרכה (המעורר), רוג'ום פעילות התנדבותית צעירים למען צעירים, שיתופי פעולה עם מרכזי צעירים, החלוץ- פעילות ספורטיבית-ערכית לנוער, קבוצות משימתיות לבני הגיל השלישי, פרקי משימה לחיילים בשירות הנח\"ל, \"יחד צפוני\"- גג לפעילות קהילתית יחד עם הרשויות בק\"ש נהריה ומטולה לעבודה של שיקום ושיבה פרויקט השיירה- פעילות קהילתית דרך מוזיקה במטולה, עכו, קצרין נהריה. שורש בגליל- מיזם יחד עם משרד הרווחה להבאת עו\"סים לצפון והקמת קבוצות מקצועיות. גרעיני עודד של שנת שירות","partners":[]}],"partners":[],"note":"","website":""},{"id":"דרך-רביד-מפלסי-נתיב","name":"דרך רביד -מפלסי נתיב","aliases":[],"areaText":"גליל עליון","scope":"גליל מזרחי","places":["גליל עליון"],"tags":["כללי"],"audience":"צעירים בגילאי 20-25","intro":".גוף שיקום וצמיחה לקהילות בגליל ובנגב","actions":[{"title":"פעילות ופרויקטים","body":"תמיכה בצעירים שעובדים בחינוך הבלתי פורמלי של הקיבוצים באמצעות קהילת צעירים. סיוע לקיבוצים בגיוס כוח אדם","partners":[]}],"partners":[],"note":"","website":""},{"id":"הביתה-חוזרים-לגליל","name":"הביתה חוזרים לגליל","aliases":[],"areaText":"גליל עליון","scope":"גליל מזרחי","places":["גליל עליון"],"tags":["התיישבות וציונות","חינוך והשכלה","תעסוקה ויזמות"],"audience":"","intro":"תעסוקה ויזמות (HUBayta): מתחם חדשנות ענק (1,300 מ\"ר) שנפתח ליד מלון גליליון (עמק החולה), לוח משרות באתר שלהם.","actions":[],"partners":[],"note":"","website":""},{"id":"הננו","name":"הננו","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["התיישבות וציונות"],"audience":"","intro":"מיישבת צעירים (20-35) בתוך קהילות קיימות בצפון","actions":[{"title":"פעילות ופרויקטים","body":"עזרה במציאת דיור, תעסוקה וחיבור לקהילה,-הארגון מסייע במציאת דיור, חיבור למעסיקים מקומיים, ויצירת חיי חברה לצעירים כדי למנוע בדידות מתיישבים בתוך הקהילות בצפון ומקבלים סיוע ומעטפת מהארגון.","partners":[]}],"partners":[],"note":"","website":""},{"id":"הסוכנות-היהודית","name":"הסוכנות היהודית","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"אקוסיסטם צמיחה גיאגרפית, פורום מנכ\"לי ארגונים","partners":[]}],"partners":[],"note":"","website":""},{"id":"הסוכנות-היהודית-בוחרים-מחר","name":"הסוכנות היהודית - בוחרים מחר","aliases":[],"areaText":"נהריה, עכו, קצרין, צפת","scope":"כלל הגליל והצפון","places":["נהריה","עכו","קצרין","צפת"],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"תכנית ארצית הפועלת בפריפריה הגיאוגרפית והחברתית בישראל המחזקת קהילות מקומיות ופועלת לפיתוח מנהיגות קהילתית ואחריות חברתית של צעירים למען הקהילה המקומית","partners":[]}],"partners":[],"note":"","website":""},{"id":"הקרן-לידידות","name":"הקרן לידידות","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"","intro":"פועלים בשיתוף עם משרד הרווחה תקציבית יחד עם עמותות נוספות שפונות לקרן","actions":[],"partners":[],"note":"","website":""},{"id":"הרשת-הגלילית","name":"הרשת הגלילית","aliases":[],"areaText":"גליל מזרחי","scope":"כלל הגליל והצפון","places":["גליל מזרחי"],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"מאגד צעירים שמעוניים לקחת חלק בפעילויוצת, עובד גם דרך מרכזי הצעירים. וללוות פיתוח יזמת צעירים התומכת בקבילה דרך place marketing לשימור קהילה.","intro":"רשת של 800 צעירים (אינדיבידואלים)","actions":[],"partners":[],"note":"","website":""},{"id":"השומר-החדש","name":"השומר החדש","aliases":[],"areaText":"גליל עליון, גולן","scope":"גליל מזרחי","places":["גליל עליון","גולן"],"tags":["התיישבות וציונות"],"audience":"","intro":"השומר החדש הוא ארגון חברתי – ציוני, המחבר בין החברה בישראל, לאדמה ולמורשת ברוח של ערבות הדדית, אומץ אזרחי ואהבת הארץ.","actions":[{"title":"פעילות ופרויקטים","body":"פועלים עם בני נוער בתנועת השומר החדש ובתיב הספר של אדם ואדמה ביראון ובגולן. ביחד עם הקרן הקיימת לישראל הם פעילים עם מתנדבים צעירים בשטחים הפתוחים בחרבי הגליל העליון, המערבי והגולן במסגרת פרויקט \"שומר היער\". תכניות מנהיגות של ש\"ש, עבודה בחקלאות ובשמירה","partners":[]}],"partners":[],"note":"","website":""},{"id":"זיו-נעורים","name":"זיו נעורים","aliases":[],"areaText":"גינוסר, עכו","scope":"כלל הגליל והצפון","places":["גינוסר","עכו"],"tags":["קהילה וחברה"],"audience":"נוער בסיכון בין ז'-י\"ב, בוגרים, משפחות, ילדים, מתן מענה למילואימניקים ולפוסט-טראומתיים (מוכרים במשרד הביטחון ובביטוח לאומי)","intro":"מרכזים ימיים עבור נוער בסיכון","actions":[{"title":"פעילות ופרויקטים","body":"פעילות ימית משולבת עם תכנית חינוכית. נישה טיפולית חדשה","partners":[]}],"partners":[],"note":"","website":""},{"id":"חוזרים-הביתה-מיסודה-של-רעיה-שטראוס","name":"חוזרים הביתה - מיסודה של רעיה שטראוס","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["התיישבות וציונות","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"הצבת מבני מגורים זמניים ואיכותיים במושבים (כגון שתולה), המאפשרים למשפחות לעבור לצפון מיידית לתקופת ניסיון או עד בניית בית הקבע- מתאים למשפחות צעירות או זוגות מבוססים יותר (בגילאי 30+)","partners":[]}],"partners":[],"note":"","website":""},{"id":"חותם","name":"חותם","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"פיתוח מנהיגות חינוכית מגוונת, ליצירת ידע יישומי ולהובלת שינויים מערכתיים המקדמים חינוך ציבורי שוויוני וטוב.","actions":[{"title":"פעילות ופרויקטים","body":"בגליל ישנם כ-120 בוגרי תכנית חותם, בהמשך המלחמה רבים עזבו. בונים כרגע תכנית מעטפת שתתן להם מענה גם בצפון. נפתחת קבוצה של \"עמיתי חותם\" בוגרי צבא לפני תואר ראשון שישתלבו פה בחינוך הבלתי פורמאלי ובהמשך יעשו בבית ברל תואר ראשון ושני |","partners":[]}],"partners":[],"note":"","website":""},{"id":"יהב","name":"יהב","aliases":[],"areaText":"קריית שמונה, ראש פינה, כפר הנשיא, משגב עם, להבות הבשן","scope":"גליל מזרחי","places":["קריית שמונה","ראש פינה","כפר הנשיא","משגב עם","להבות הבשן"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, שנות שירות, מכינות, תיכונים, צעירים. הקבוצה שעוברת תהליך מעבירים מפגשי לימוד ואירועי תרבות לנוער וצעירים במקומות אחרים","intro":"חינוך למצוינות","actions":[{"title":"פעילות ופרויקטים","body":"קבוצת סטודנטים שנפגשת ועוברת תהליכים חינוכיים- הגות ציונית קלאסית, יהדות, בירור זהות, עשיה","partners":[]}],"partners":[],"note":"","website":""},{"id":"יוזמת-בלומברג","name":"יוזמת בלומברג","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"צעירים וסטונדטים","intro":"תעסוקה והשארת צעירים","actions":[{"title":"פעילות ופרויקטים","body":"פרויקט צעירים בשיתוף עם מכללת תל חי / אוניברסיטת קריית שמונה בגליל,","partners":[]}],"partners":[],"note":"","website":""},{"id":"יישוב-חלוצי","name":"יישוב חלוצי","aliases":[],"areaText":"מעלות תרשיחא","scope":"גליל מערבי","places":["מעלות תרשיחא"],"tags":["התיישבות וציונות"],"audience":"צעירים","intro":"בינוי קהילה","actions":[{"title":"פעילות ופרויקטים","body":"בניית קהילה צעירה חזקה ומחויבת כמנוף לשיקום ולהתחדשות של רשויות שנפגעו במלחמה, תוך שילוב הצעירים במרכז ההחלטות והעשייה כחלק מן המנהיגות המקומית ומתן מענה ממוקד לצרכיהם.","partners":[]}],"partners":[],"note":"","website":""},{"id":"יעדים-לצפון","name":"יעדים לצפון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"מגיל ינקות ועד מבוגרים","intro":"מיסודה של קרן רש\"י, עובדים על מגוון פרויקטים: החל ממעונות יום ויחידות התפתחותיות בצפון, פרויקט ראשית במעלות, בתים חמים לנערות בחברה הערבית, קידום השכלה ותעסוקה בחברה הערבית, ריטריט לעיבוד לנוער לאחר ה7.10, ליווי קהילות לקידום אג'נדה, מרכזי כרם לילדים נפגעי תקיפה מינית, מגדל אור שנותנת שירותים לאנשים עם לקות ראיה ועיוורון","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"ישראל-2050","name":"ישראל 2050","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"הכשרת סטודנטים וצעירים לאקטיביזם חברתי-כלכלי ומיצוי זכויות. \"צוותי השפעה\": קבוצות סטודנטים שפועלות מול הרשויות לשיפור תחב\"צ, דיור ותעסוקה. קואליציות מקומיות: בניית כוח פוליטי צעיר בתוך הרשויות.","actions":[],"partners":[],"note":"","website":""},{"id":"כל-ישראל-חברים-ממזרח-שמש","name":"כל ישראל חברים/ממזרח שמש","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"תכנית מנהיגות לצעירים בני המקום, סטונדטים שמתנדבים בקהילה וחונכים תלמידים בבתי ספר","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"לב-אחד","name":"לב אחד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"חינוך, תעסוקה, השכלה.","actions":[{"title":"פעילות ופרויקטים","body":"הארגון סיוע אזרחי הופעל במצבי חרום. מתנדבים לשיקום היישובים ועזרה לתושבים. מקיימים חנ\"ל מתנדבים |","partners":[]}],"partners":[],"note":"","website":""},{"id":"מוטב-יחדיו","name":"מוטב יחדיו","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["קהילה וחברה"],"audience":"","intro":"בינוי קהילה","actions":[{"title":"פעילות ופרויקטים","body":"מוטב יחדיו - בינוי קהילה, תחילת פתיחת הרובעים בעיר. עובדים עם מערך המתנדבים, | מכינת תבור במרץ פותחים שלוחה בקריית שמונה ויגורו בעיר. ייכנסו לתוך הרובעים, יתחילו לעבוד.","partners":[]}],"partners":[],"note":"","website":""},{"id":"מיזם-מעלה","name":"מיזם מעלה","aliases":[],"areaText":"עכו, מעלות תרשיחא, קריית שמונה, מטה אשר","scope":"כלל הגליל והצפון","places":["עכו","מעלות תרשיחא","קריית שמונה","מטה אשר"],"tags":["מנהיגות צעירה"],"audience":"","intro":"ליווי רשויות ונתינת כלים מקצועיים לפיתוח תחום הצעירים בתחומן, גיבוש מדיניות רשותית ובניית תכניות אסטרטגיות לתחום זה","actions":[],"partners":[],"note":"","website":""},{"id":"מכון-שיטה","name":"מכון שיטה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"חיזוק ערכי הדמוקרטיה המקומית בעבודה עם נבחרי ציבור","actions":[{"title":"פעילות ופרויקטים","body":"מכון מדיניות עם השלטון המקומי. חיזוק הדמוקרטיה המקומית. חלק מהפעילויות זו תכנית מתמחים שלומדים כדי להיות נבחרי ציבור. |","partners":[]}],"partners":[],"note":"","website":""},{"id":"מכללת-תל-חי","name":"מכללת תל חי","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה","תעסוקה ויזמות"],"audience":"","intro":"מנהל הסטודנטים","actions":[{"title":"פעילות ופרויקטים","body":"1. עידוד חזרה לסטודנטים באמצעות משרד האוצר 2. מל\"ג - יאפשר שכ\"ל חינם ככל הנראה גם לשנה הבאה 3. פילנתרופיה - משרתי מילואים, חוסן, הגדלת הטבות (לשיחה עם קש\"ח)","partners":[]}],"partners":[],"note":"","website":""},{"id":"מכללת-תל-חי-מרכז-תעסוקה-והשכלה","name":"מכללת תל חי - מרכז תעסוקה והשכלה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה","תעסוקה ויזמות"],"audience":"מטרת המרכז לפיתוח קריירה להעניק לסטודנטים ולבוגרים כלים ישומיים למעבר מעולם האקדמיה לעולם התעסוקה וניעות בין תפקידים במהלך ניהול קריירה.","intro":"מרכז תעסוקה והשכלה","actions":[],"partners":[],"note":"","website":""},{"id":"מסאר-מבית-קרן-אדמונד-דה-רוטשילד","name":"מסאר מבית קרן אדמונד דה רוטשילד","aliases":[],"areaText":"כפר יאסיף, אבו סנאן, ירכא, חורפיש, בית ג'אן, טובא-זנגריה, גוש חלב","scope":"כלל הגליל והצפון","places":["כפר יאסיף","אבו סנאן","ירכא","חורפיש","בית ג'אן","טובא-זנגריה","גוש חלב"],"tags":["חינוך והשכלה","תעסוקה ויזמות","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"תוכנית מנהיגות והכנה לאקדמיה לצעירים וצעירות בוגרי תיכון מהחברה הערבית שמטרתה לפתח עתודת מנהיגות צעירה בעלת תודעה חברתית, ערכית, מנהיגותית וקהילתית.","partners":[]}],"partners":[],"note":"","website":""},{"id":"מעברים-אצבע-הגליל","name":"מעברים אצבע הגליל","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"ליווי מחפשי עבודה שכירים, ליווי מעסיקים, לוח משרות אזורי","actions":[{"title":"פעילות ופרויקטים","body":"קשר עם גופי תעסוקה ועסקים, קשר עם מעסיקים","partners":[]}],"partners":[],"note":"","website":""},{"id":"מעוז","name":"מעוז","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"רשת מובילים בקהילות","actions":[{"title":"פעילות ופרויקטים","body":"נותנים מענה דרך חברי הרשת שלהם ברשויות (כמו מיכל רייקין ועתר רזי-אורן |","partners":[]}],"partners":[],"note":"","website":""},{"id":"מפקדת-אלון","name":"מפקדת אלון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"","actions":[],"partners":[],"note":"","website":""},{"id":"מצפינים-צעירים","name":"מצפינים צעירים","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"מטה הצעירים של פורום מצפינים לשינוי המציאות בצפון","actions":[{"title":"פעילות ופרויקטים","body":"פועלים כלובי צעירים בעבודה מול משרדי ממשלה ורשויות מובילים נרטיב של ‘משימה לאומית/ ציונות 25' שמעצים את ערכי האזור ומעודד חזון של צמיחה ושינוי כחלק מהתחדשות לאומית.","partners":[]}],"partners":[],"note":"","website":""},{"id":"מקו-ם-מועצת-הקבוצות-והקהילות-המשימתיות-בישראל","name":"מקו\"ם - מועצת הקבוצות והקהילות המשימתיות בישראל","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"מועצה משותפת: כנסי הנהגות, סמינרי אסיפה, בי\"ס לקבוצות וקהילות משימתיות בישראל, המסע לשוויון חברתי, מקו\"ם בתנועה.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"מרכז-יסודות-רש-י","name":"מרכז יסודות /רש\"י","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"שיפור המערכות הציבוריות על ידי פיתוח וגיוון ההון האנושי, מיצוב השירות הציבורי בחברה הישראלית.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"מרכז-לאודר","name":"מרכז לאודר","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"מוביל ומקדם הזדמנויות תעסוקה חדשות ואטרקטיביות בנגב ובגליל.","actions":[{"title":"פעילות ופרויקטים","body":"מתקיימים מפגשי נטוורקינג וסדנאות הכנה מקצועיות שמטרתם לחבר מועמדים עם מעסיקים מובילים באזור. מתארגנים אירועים ייעודיים לחיבור בין מועמדים למעסיקים, הכוללים גם \"ימי גיוס\" וגם מפגשי ייעוץ והכוונה מקצועית. |","partners":[]}],"partners":[],"note":"","website":""},{"id":"מרכזים-לצדק-חברתי","name":"מרכזים לצדק חברתי","aliases":[],"areaText":"קריית שמונה, קצרין, נהריה, עכו","scope":"כלל הגליל והצפון","places":["קריית שמונה","קצרין","נהריה","עכו"],"tags":["כללי"],"audience":"תושבים- לעתים מיקוד בצעירים אבל לאו דווקא","intro":"התמודדות עם חוסר אונים פוליטי נרכש","actions":[{"title":"פעילות ופרויקטים","body":"הכשרה לפעילים חברתיים, תושבים ופעילים. עובדים עם הרשויות והאזרחים ובונים קהילה סביב הנושא הזה. פיתוח מנהיגות מקומית . קול מקומי- מכשירים חברי מועצה מכהנים ומועמדים לרשויות.","partners":[]}],"partners":[],"note":"","website":""},{"id":"משאבים","name":"משאבים","aliases":[],"areaText":"משאבים נמצאת בקרית שמונה, מרכזי החוסן שאותם הם מפעילים פרוסים בצפון","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"אוכלוסיה רחבה- מגיל 6 ומעלה. טיפול דיאדי גם לגיל הרך","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"מרכזי חוסן פועלים ב36 מרכזים ברחבי הצפון. מענים- טיפול נפשי לנפגעי חרדה וטראומה (דרך משרד הבריאות וביטוח לאומי). פעילויות בגני ילדים, בתי ספר ותיכונים למתן כלים להתמודדות. פעילויות להורים, אמהות לחיילים, נשות מילואים, אזרחים ותיקים, אנשי מילואים. קבוצות טיפוליות בבתי ספר. ליווי רשויות בעיבוד ובהיערכות לחירום","partners":[]}],"partners":[],"note":"","website":""},{"id":"משרד-הביטחון","name":"משרד הביטחון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","intro":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","actions":[{"title":"פעילות ופרויקטים","body":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","partners":[]}],"partners":[],"note":"","website":""},{"id":"משרד-הנגב-והגליל","name":"משרד הנגב והגליל","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":["גליל מזרחי ומערבי"],"tags":["כללי"],"audience":"","intro":"רשות הצעירים - מפעילים את מרכזי הצעירים","actions":[{"title":"פעילות ופרויקטים","body":"גופים עירוניים המספקים שירותים מקיפים ונרחבים לאוכלוסיית הצעירים וליצירת מקום להזדמנויות ומימוש הפוטנציאל האישי והקהילתי.","partners":[]}],"partners":[],"note":"","website":""},{"id":"משרד-העבודה","name":"משרד העבודה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"הכשרות מותאמות שוק,סדנאות מיומנויות רכות וקשות, וחבירה לתשתיות שנותנות מענה לתעסוקה באופן כללי.","intro":"מוביליות כלכלית תעסוקתית לצעירים בפריפריה חברתית-גיאוגרפית","actions":[{"title":"פעילות ופרויקטים","body":"1.מיזם פלוס - מיזם לעתודה ניהולית, סוף פברואר, מכללת גישות. 50 צעירים 2. קורס סושיאל לצעירים גם עזרה לעסקים 3. ריטריט תעסוקה שכולל גם הרצאות בנושא תעסוקה 4. הכשרות עם אשכול גליל מערבי ומזרחי.","partners":[]}],"partners":[],"note":"","website":""},{"id":"עושים-שכונה","name":"עושים שכונה","aliases":[],"areaText":"שלומי, מעלות תרשיחא, עכו","scope":"גליל מערבי","places":["שלומי","מעלות תרשיחא","עכו"],"tags":["מנהיגות צעירה"],"audience":"נוער כללי ונוער בסיכון, צעירים, מלגאים, תושבי שכונות מצוקה","intro":"בינוי קהילה והצמחת מנהיגות שכונתית","actions":[{"title":"פעילות ופרויקטים","body":"מכינה קדם צבאית \"אופק\", בניית קהילות שכונתיות והצמחת מנהיגות מקומית, שיקום שכונות, סיירות הורים ונוער, הכשרות מנהיגות, גינה ומגדל- שיקום הצפון, עידוד צעירים לגיוס משמעותי לצה\"ל, גרעיני בנות שירות ושנת שירות, עיר מקלט- שיקום מקלטים","partners":[]}],"partners":[],"note":"","website":""},{"id":"עמותת-אחינועם","name":"עמותת אחינועם","aliases":[],"areaText":"גליל מערבי","scope":"כלל הגליל והצפון","places":["גליל מערבי"],"tags":["קהילה וחברה"],"audience":"","intro":"קידום שוויון הזדמנויות","actions":[{"title":"פעילות ופרויקטים","body":"צמצום פערים חברתיים וחיזוק חוסן החברה בישראל באמצעות קידום שוויון הזדמנויות ומוביליות חברתית עבור צעירים מהפריפריה הגיאוגרפית והחברתית: מלגות לסטודנטים וליוויים, הכשרות מקצועיות. |","partners":[]}],"partners":[],"note":"","website":""},{"id":"עמותת-ביצור","name":"עמותת ביצור","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, תושבי קהילה צעירה קרית שמונה, תושבים מהגיל השלישי ועוד","intro":"חינוך, קהילה והתיישבות, עמותה בערכי התורה","actions":[{"title":"פעילות ופרויקטים","body":"מדרשה לאומנויות בתל חי, תכניות לחיזוק ערכים וזהות בבתי ספר, בנות שירות, גרעין קהילתי- קהילה שעושה פרויקטים בעיר, פרויקט לקליטת משפחות חדשות שלא גרו בקריית שמונה, תכניות חינוך עם אגף החינוך, הדרכת טיולים בקריית שמונה והאזור, מרכז תעסוקה ויזמות לגיל השלישי, תיירות עירונית ואזורית, תעסוקת מבוגרים עשייה חברתית והתנדבות","partners":[]}],"partners":[],"note":"","website":""},{"id":"עמותת-צורים","name":"עמותת צורים","aliases":[],"areaText":"משתנה, כרגע יש בנהריה חצור טבריה ועוד","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"נוער בסיכון לפני גיוס, צעירים, אנשי תעשייה","intro":"הכשרה מקצועית טכנולוגית","actions":[{"title":"פעילות ופרויקטים","body":"חיבור בין מפעלים ומכללות, קיום קורסי הכשרה, שיתופי פעלה עם ארגונים נוספים, הכשרת נוער בסיכון בהכשרות לקראת תפקידים בצה\"ל","partners":[]}],"partners":[],"note":"","website":""},{"id":"עמותת-שחר","name":"עמותת שחר","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["התיישבות וציונות"],"audience":"צעירים","intro":"התיישבות בנגב ובגליל","actions":[{"title":"פעילות ופרויקטים","body":"מכינות קדם צבאיות, תכניות בוגרים, מקימים גרעין התיישבותי בקריית שמונה זה עוד בהתווהות השאיפה היא שזה יתפתח לעוד מקומות","partners":[]}],"partners":[],"note":"","website":""},{"id":"עתידים","name":"עתידים","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"עידוד מצוינות והשמה בתחומי ההייטק","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","website":""},{"id":"פורום-מנהלי-מרכזי-צעירים-הסוכנות-היהודית","name":"פורום מנהלי מרכזי צעירים הסוכנות היהודית","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"פורום אזורי של מנהלי מרכזי צעירים בשילוב האשכול","actions":[{"title":"פעילות ופרויקטים","body":"ליווי מנהלי מרכזי הצעירים, מפגש פעם בחודש","partners":[]}],"partners":[],"note":"","website":""},{"id":"קדמה","name":"קדמה","aliases":[],"areaText":"רחבי הגליל","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"צעירים אחרי צבא, סטודנטים","intro":"חיזוק החוסן הקהילתי ביישובי גבול","actions":[{"title":"פעילות ופרויקטים","body":"כפרי סטודנטים בכפר סאלד, כפר יובל, ראש פינה (גם כפר סטודנטים וגם כפר צעירים). במשגב עם ומנרה כרגע לא התאפשר- כן יש כפר צעירים לאחרי צבא (לא סטודנטים). קומונות ש\"ש גם בכמה מוקדים","partners":[]}],"partners":[],"note":"","website":""},{"id":"קרן-אדמונד-דה-רוטשילד","name":"קרן אדמונד דה רוטשילד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","חינוך והשכלה","התיישבות וציונות","תעסוקה ויזמות"],"audience":"","intro":"הקרן פועלת ליצירת חברה ישראלית צודקת ומלוכדת, בהמשך למורשת פילנתרופית בת 140 שנים. הקרן מקדמת מצוינות, גיוון ומנהיגות באמצעות השכלה גבוהה ומשקיעה בסוכני שינוי חברתי בישראל. הקרן מובילה פרויקטים חדשניים ברחבי הארץ שמטרתם צמצום פערים וטיפוח מנהיגות צעירה. פעילותה מתמקדת בחמישה תחומים מרכזיים: * מיצוי השכלה גבוהה מצויינות אקדמית * פיתוח מנהיגות צעירה ומגוונת * קידום מעורבות חברתית באמצעות אמנות * השקעה במודלים כלכליים-חברתיים פורצי דרך פעילות הקרן משפיעה על עשרות אלפי אנשים ומעצבת את דור ההמשך של חלוצי ישראל ויזמיה","actions":[],"partners":[],"note":"","website":""},{"id":"קרן-ביחד","name":"קרן ביחד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות","חינוך והשכלה"],"audience":"","intro":"שוויון הזדמניויות ומוביליות","actions":[{"title":"פעילות ופרויקטים","body":"הקרן תומכת בארגונים רבים הפועלים במרחב","partners":[]}],"partners":[],"note":"","website":""},{"id":"קרן-שחף","name":"קרן שחף","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"הקרן מתעסקת בתחום הקהילה והקהילתיות וכל הנגזרות הנוגעות בזה, יש נגיעה בתחומי תוכן, חינוך, רווחה. בק\"ש - צעירים ככח צמיחה.","actions":[{"title":"פעילות ופרויקטים","body":"הקרן מתעסקת בתחום הקהילה והקהילתיות וכל הנגזרות הנוגעות בזה, יש נגיעה בתחומי תוכן, חינוך, רווחה. בק\"ש - צעירים ככח צמיחה.","partners":[]}],"partners":[],"note":"","website":""},{"id":"ריאן-מרכזי-תעסוקה","name":"ריאן מרכזי תעסוקה","aliases":[],"areaText":"כפר יאסיף, ג'וליס, אבו סנאן, ירכא, חורפיש, בית ג'אן, טובא-זנגריה, גוש חלב","scope":"כלל הגליל והצפון","places":["כפר יאסיף","ג'וליס","אבו סנאן","ירכא","חורפיש","בית ג'אן","טובא-זנגריה","גוש חלב"],"tags":["תעסוקה ויזמות"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"הכוונה, הכשרה, השמה וליווי תעסוקתי","partners":[]}],"partners":[],"note":"","website":""},{"id":"שותפויות-אדמונד-דה-רוטשילד","name":"שותפויות אדמונד דה רוטשילד","aliases":[],"areaText":"גולן, אצבע הגליל","scope":"גליל מזרחי","places":["גולן"],"tags":["מנהיגות צעירה"],"audience":"נוער כללי, סטודנטים, צעירים, הורים וצוותים חינוכיים, כולל חיילים ומשוחררים","intro":"תכניות מנהיגות צעירה ומגוונת","actions":[{"title":"פעילות ופרויקטים","body":"שגרירי רוטשילד- תל חי, קו הזינוק באצבע הגליל ובגליל המערבי |","partners":[]}],"partners":[],"note":"","website":""},{"id":"תוצרת-הארץ","name":"תוצרת הארץ","aliases":[],"areaText":"קריית שמונה, מנרה, מלכיה, משמר הירדן, חצור הגלילית, קצרין, צפת","scope":"גליל מזרחי","places":["קריית שמונה","מנרה","מלכיה","משמר הירדן","חצור הגלילית","קצרין","צפת"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, צעירים, משפחות צעירים","intro":"קהילות סטודנטים וקהילות צעירים","actions":[{"title":"פעילות ופרויקטים","body":"קהילות סטודנטים בצפון - ק\"ש, חצור הגלילית, קצרין וצפת. קהילות בוגרים - ק\"ש. פרויקטים נוספים: \"רוח צפונית\" - ליווי קהילות, חזרה הביתה. \"קהילות אופק\" - בני המקום, \"קהילות עוגן\" - עיבוי קהילתי במנרה, מלכיה, משמר הירדן, קרית שמונה. השותפות היא עם גופים ממשלתיים או פילנתרופיים. תחת המועצה המשותפת של \"מקום\". |","partners":[]}],"partners":[],"note":"","website":""},{"id":"תורנו-דרור-ישראל","name":"תורנו - דרור ישראל","aliases":[],"areaText":"קריית שמונה, מטולה","scope":"גליל מזרחי","places":["קריית שמונה","מטולה"],"tags":["חינוך והשכלה"],"audience":"סטודנטים רווקים בגילאי 25-35","intro":"חינוך, עשיה קהילתית","actions":[{"title":"פעילות ופרויקטים","body":"התיישבות צעירים בקהילות בקו העימות- יש קבוצה שהסתיימה 10 חבר'ה שנשארו בצפון. קבוצה בק\"ש של 16 חבר'ה, עוד קבוצה של 15 במטולה. מתכננים גם הקמה בקיץ במטה אשר ובקרית שמונה ובגליל עליון.","partners":[]}],"partners":[],"note":"","website":""},{"id":"תנועת-אור","name":"תנועת אור","aliases":[],"areaText":"קריית שמונה, מעלות תרשיחא, מטולה, קצרין, שלומי, חצור הגלילית","scope":"כלל הגליל והצפון","places":["קריית שמונה","מעלות תרשיחא","מטולה","קצרין","שלומי","חצור הגלילית"],"tags":["התיישבות וציונות"],"audience":"כל אדם שמעוניין במעבר לנגב ולגליל, כל תושב שגר במקומות הפעילים. דגש על משפחות צעירים. הסמכת צעירים ומשוחררים טריים לפיקוח ובניה (למשל בקרית שמונה)","intro":"התיישבות בנגב ובגליל, פיתוח אזורי","actions":[{"title":"פעילות ופרויקטים","body":"הפעילות שלהם מושתתת בעיקר עם יצירת החיבורים למרכזי התיישבות בצפון ובדרום (דגש על רשויות גדולות). כמו כן יש פרויקטים ספציפיים: מרכז אסטרטגיה אזורי, הקמת קהילות צעירים (קהילות אור) בשכונות קיימות בערים כמו קורצ'אק בעכו ושפרינצק בק\"ש, מחלקת התיישבות (הבאת קבוצות ותושבים למגורים בנגב ובגליל), מרכז המידע עבור מעבר צפונה ודרומה (כולל עידוד רופאים צעירים להגיע לעבודה בפוריה). עובדים גם עבור משרד הנגב והגליל. השנה התמקדו במטולה שלומי ומעלות. מחלקת שיווק לכל המטרות הללו","partners":[]}],"partners":[],"note":"","website":""},{"id":"תנועת-תרבות","name":"תנועת תרבות","aliases":[],"areaText":"בצפון כולו- גולן, גליל עליון, קרית שמונה, גליל מערבי לאורכו","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"נוער וצעירים, אזרחים ותיקים","intro":"פיתוח חוסן חברתי דרך תרבות ואומנות בפריפריה הגאו-חברתית בישראל.","actions":[{"title":"פעילות ופרויקטים","body":"מעיין כוחי: חוסן באמצעות אמנות, לחבור בין אמנים למטפלים (תכנית שעובדת בק\"ש, נהריה, מעלה יוסף, צפת, שלומי). בנהריה: קהילה של בוגרי תנועת תרבות שמשתלבים בגליל המערבי, מוסד תרבות (ימה) שמארח אומנים, בית קפה חברתי. שימוש במפעל זוגלובק הישן לטובת חממה ליוצרים. בקרית שמונה- בית המורשת והזהות העירונית בבית החאן (פעילות קבועה), יזמים צעירים בתחומי התרבות והמורשת, גם בבי\"ס דנציגר עם הנוער. התווספו גם- 4 מרכזי תרבות במעלה יוסף (יערה, אבן מנחם ו2 נוספים). רשת סוכני תרבות בגליל מזרחי (צפת, מג'דל שמס, רמת הגולן, מעלות) ובגליל מערבי (עכו, מטה אשר). בית יוצרים בשלומי- פעילות בתחומי תרבות מוזיקה ומחול עם יחידת הנוער של שלומי. בבי\"ס גליל מערבי- בתיכון יש שלוחה שעובדת אחה\"צ בתחומי התרבות. בשלומי נהריה וצפת- מיזם 'קהילת תרבות רב דורית' שמשלבת בני גיל השלישי עם התרבות והיצירה","partners":[]}],"partners":[],"note":"","website":""},{"id":"תנופה-לצפון","name":"תנופה לצפון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":[],"audience":"","intro":"","actions":[],"partners":[],"note":"","website":""},{"id":"תעסוקה-יוזמת-בלומברג","name":"תעסוקה + יוזמת בלומברג","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["התיישבות וציונות"],"audience":"צעירים סטודנטים","intro":"כפר סטודנטים לבוגרי תנועת בני עקיבא, לוקחים חלק בעשיה בעיר","actions":[{"title":"פעילות ופרויקטים","body":"כיצד נשאיר צעירים ואת בוגרי תל חי בגליל המזרחי?","partners":[]}],"partners":[],"note":"","website":""}],"legend":[{"topic":"מטרת הקובץ","text":"מיפוי הארגונים הפועלים עם צעירים בגליל ובצפון: מנהיגות צעירה, חינוך והשכלה, תעסוקה ויזמות, קהילה וחברה, התיישבות וציונות וחירום וחוסן."},{"topic":"פרטי קשר","text":"הדף אינו מציג שמות של אנשי קשר או מספרי טלפון. פנייה לארגון נעשית דרך הערוצים הפומביים שלו."},{"topic":"מרחב פעילות","text":"המיפוי משתרע על הגליל המזרחי והמערבי. מסנן היישובים כולל רק ערכים שנרשמו כמקום; תיאורי פעילות חופשיים נשמרו כטקסט ואינם ניתנים לסינון."},{"topic":"סייג","text":"המיפוי משקף את המקורות שסופקו. אין זו רשימה ממצה של כלל הארגונים הפועלים במרחב."}],"tagOrder":["מנהיגות צעירה","חינוך והשכלה","תעסוקה ויזמות","קהילה וחברה","התיישבות וציונות","חירום וחוסן","כללי"]};
+const CONFIG  = {"key":"young","title":"ארגונים הפועלים עם צעירים בגליל","subtitle":"מיפוי השחקנים בתחום הצעירים בגליל ובצפון","description":"מיפוי הארגונים הפועלים עם צעירים בגליל ובצפון — מרכז הידע האזורי גליל מזרחי־מערבי.","sources":"מבוסס על מסד הנתונים \"שחקנים בתחום צעירים\" ועל קבצי מיפוי של קרן רש\"י","tagsTitle":"תחומי פעילות","facets":[{"key":"scope","label":"היקף הפעילות","all":"כל ההיקפים","order":["גליל מזרחי","גליל מערבי","כלל הגליל והצפון"]},{"key":"places","label":"יישוב או אזור","all":"כל המקומות","multi":true}],"kpis":[{"label":"ארגונים","kind":"count"},{"label":"תחומי פעילות","kind":"distinct","key":"tags"},{"label":"יישובים ואזורים","kind":"distinct","key":"places"}],"meta":[{"key":"audience","label":"אוכלוסיית יעד"}],"fields":["name","scope","areaText","places","tags","audience","intro","actions","note","website","internalNote"]};
+const ORGS = PAYLOAD.organizations;
+const LEGEND = PAYLOAD.legend;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/* ערכי הסינון הנוכחיים: מפתח הפָּסֶט -> ערך יחיד, ובנוסף חיפוש וסט תגיות */
+const state = { q: "", facets: {}, tags: new Set() };
+CONFIG.facets.forEach(f => { state.facets[f.key] = ""; });
+
+/* ------------------------------------------------- אוצר המילים מתוך הנתונים */
+const valuesOf = (org, key) => {
+  const v = org[key];
+  return Array.isArray(v) ? v : (v ? [v] : []);
+};
+
+function vocabulary(facet) {
+  const seen = new Set();
+  ORGS.forEach(o => valuesOf(o, facet.key).forEach(v => seen.add(v)));
+  const list = [...seen];
+  return facet.order
+    ? facet.order.filter(v => seen.has(v))
+    : list.sort((a, b) => a.localeCompare(b, "he"));
+}
+
+const TAGS = (() => {
+  const counts = new Map();
+  ORGS.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  const order = PAYLOAD.tagOrder || [];
+  return [...counts.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return counts.get(b) - counts.get(a) || a.localeCompare(b, "he");
+  });
+})();
+
+/* ------------------------------------------------------- בניית שדות הסינון */
+CONFIG.facets.forEach(facet => {
+  const id = "f_" + facet.key;
+  const field = document.createElement("div");
+  field.className = "field";
+  field.innerHTML = `<label for="${id}">${esc(facet.label)}</label>`
+    + `<select id="${id}" data-facet="${esc(facet.key)}">`
+    + `<option value="">${esc(facet.all)}</option>`
+    + vocabulary(facet).map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")
+    + `</select>`;
+  $("fieldRow").appendChild(field);
+});
+
+/* --------------------------------------------------------------- searchable */
+ORGS.forEach(o => {
+  o._hay = [
+    o.name, ...(o.aliases || []), o.type, o.typeGroup, o.areaText, o.intro,
+    ...CONFIG.meta.map(m => o[m.key]),
+    ...o.tags, ...o.partners,
+    ...o.actions.map(a => a.title + " " + a.body)
+  ].filter(Boolean).join(" ").toLowerCase();
+});
+
+/* ----------------------------------------------------------------- filtering */
+function matches(o) {
+  if (state.q && !o._hay.includes(state.q)) return false;
+  for (const facet of CONFIG.facets) {
+    const want = state.facets[facet.key];
+    if (want && !valuesOf(o, facet.key).includes(want)) return false;
+  }
+  for (const t of state.tags) if (!o.tags.includes(t)) return false;
+  return true;
+}
+
+/* ---------------------------------------------------------------------- KPIs */
+function kpiValue(kpi, rows) {
+  switch (kpi.kind) {
+    case "equals":   return rows.filter(o => valuesOf(o, kpi.key).includes(kpi.value)).length;
+    case "actions":  return rows.reduce((n, o) => n + o.actions.length, 0);
+    case "distinct": return new Set(rows.flatMap(o => valuesOf(o, kpi.key))).size;
+    default:         return rows.length;
+  }
+}
+
+function renderKpis(rows) {
+  $("kpis").innerHTML = CONFIG.kpis.map(k =>
+    `<div class="kpi"><div class="kpi-val">${kpiValue(k, rows)}</div>`
+    + `<div class="kpi-lbl">${esc(k.label)}</div></div>`).join("");
+}
+
+/* --------------------------------------------------------------------- views */
+function renderChips(rows) {
+  const counts = new Map();
+  rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  $("tagChips").innerHTML = TAGS.map(t => {
+    const n = counts.get(t) || 0;
+    const on = state.tags.has(t);
+    if (!n && !on) return "";
+    return `<button type="button" class="chip" aria-pressed="${on}" data-tag="${esc(t)}">`
+         + `${esc(t)}<span class="chip-count">${n}</span></button>`;
+  }).join("");
+}
+
+function renderBars(rows) {
+  const counts = new Map();
+  rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const max = top.length ? top[0][1] : 1;
+  $("bars").innerHTML = top.map(([tag, n]) => `
+      <button type="button" class="bar-row" data-tag="${esc(tag)}" aria-pressed="${state.tags.has(tag)}">
+        <span class="bar-label">${esc(tag)}</span>
+        <span class="bar-track"><span class="bar-fill" style="width:${Math.round(n / max * 100)}%"></span></span>
+        <span class="bar-num">${n}</span>
+      </button>`).join("");
+}
+
+function actionHtml(a) {
+  const partners = a.partners.length
+    ? `<div class="partners"><span class="k">בשיתוף</span>`
+      + a.partners.map(p => `<span class="partner">${esc(p)}</span>`).join("")
+      + `</div>`
+    : "";
+  return `<div class="action">`
+    + (a.title ? `<div class="action-title">${esc(a.title)}</div>` : "")
+    + `<div class="action-body">${esc(a.body)}</div>${partners}</div>`;
+}
+
+function orgHtml(o) {
+  const badges = [];
+  if (o.relevance) badges.push(`<span class="badge ${o.relevance === "ליבה" ? "badge-core" : "badge-adj"}">${esc(o.relevance)}</span>`);
+  if (o.typeGroup) badges.push(`<span class="badge">${esc(o.typeGroup)}</span>`);
+  if (o.type && o.type !== o.typeGroup) badges.push(`<span class="badge">${esc(o.type)}</span>`);
+
+  const meta = [
+    o.areaText ? `<span><span class="k">מרחב פעילות</span> ${esc(o.areaText)}</span>` : "",
+    ...CONFIG.meta.map(m => o[m.key]
+      ? `<span><span class="k">${esc(m.label)}</span> ${esc(o[m.key])}</span>` : ""),
+    o.website ? `<span><a href="${esc(o.website)}" target="_blank" rel="noopener noreferrer">אתר הארגון</a></span>` : ""
+  ].join("");
+
+  return `<article class="org" id="${esc(o.id)}" data-relevance="${esc(o.relevance || "")}">
+    <div class="org-head"><h3 class="org-name">${esc(o.name)}</h3></div>
+    ${badges.length ? `<div class="badges">${badges.join("")}</div>` : ""}
+    ${meta ? `<div class="org-meta">${meta}</div>` : ""}
+    ${o.intro ? `<p class="org-intro">${esc(o.intro).replace(/\n/g, "<br>")}</p>` : ""}
+    ${o.tags.length ? `<div class="tags">${o.tags.map(t =>
+        `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+    ${o.actions.length ? `<details class="actions">
+        <summary>${o.actions.length} ${o.actions.length === 1 ? "פעולה" : "פעולות"}</summary>
+        <div class="action-list">${o.actions.map(actionHtml).join("")}</div>
+      </details>` : ""}
+    ${o.note ? `<p class="org-note">${esc(o.note)}</p>` : ""}
+  </article>`;
+}
+
+function render() {
+  const rows = ORGS.filter(matches);
+  renderKpis(rows);
+  renderChips(rows);
+  renderBars(rows);
+  $("resultCount").innerHTML = `<b>${rows.length}</b> מתוך <b>${ORGS.length}</b> ארגונים`;
+  $("results").innerHTML = rows.length
+    ? rows.map(orgHtml).join("")
+    : `<div class="empty">לא נמצאו ארגונים. נסו לנקות חלק מהמסננים.</div>`;
+}
+
+/* -------------------------------------------------------------------- events */
+$("fq").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
+$("fieldRow").addEventListener("change", e => {
+  const key = e.target.dataset.facet;
+  if (key) { state.facets[key] = e.target.value; render(); }
+});
+
+function toggleTag(tag) {
+  state.tags.has(tag) ? state.tags.delete(tag) : state.tags.add(tag);
+  render();
+}
+$("tagChips").addEventListener("click", e => {
+  const btn = e.target.closest("[data-tag]");
+  if (btn) toggleTag(btn.dataset.tag);
+});
+$("bars").addEventListener("click", e => {
+  const btn = e.target.closest("[data-tag]");
+  if (btn) toggleTag(btn.dataset.tag);
+});
+$("btnReset").addEventListener("click", () => {
+  state.q = "";
+  state.tags.clear();
+  $("fq").value = "";
+  CONFIG.facets.forEach(f => { state.facets[f.key] = ""; $("f_" + f.key).value = ""; });
+  render();
+});
+
+/* ---- פרמטרים ב-URL: מאפשרים לפתוח את הדף כשהוא כבר מסונן, למשל מתוך מפה ---- */
+(function readUrl() {
+  const p = new URLSearchParams(location.search);
+  const q = p.get("q");
+  if (q) { state.q = q.toLowerCase(); $("fq").value = q; }
+  CONFIG.facets.forEach(f => {
+    const v = p.get(f.key);
+    if (v) { state.facets[f.key] = v; $("f_" + f.key).value = v; }
+  });
+  (p.get("tag") || "").split(",").filter(Boolean).forEach(t => state.tags.add(t));
+})();
+
+/* ------------------------------------------------------------------ legend */
+$("legendList").innerHTML = LEGEND.map(l =>
+  `<div class="legend-item"><dt>${esc(l.topic)}</dt><dd>${esc(l.text)}</dd></div>`).join("");
+
+render();
+
+/* פתיחת כרטיס שהופנו אליו ישירות בכתובת (#id) */
+if (location.hash) {
+  const el = document.querySelector(location.hash);
+  if (el) { el.querySelector("details.actions")?.setAttribute("open", ""); el.scrollIntoView(); }
+}
+</script>
+</body>
+</html>

@@ -6,10 +6,11 @@ name: בניית הדף
 on:
   push:
     paths:
-      - "data/organizations.json"
+      - "data/*.json"
       - "tools/template.html"
       - "tools/editor_template.html"
       - "tools/build_site.py"
+      - "tools/sites.py"
   workflow_dispatch:
 
 permissions:
@@ -32,12 +33,12 @@ jobs:
 
       - name: דחיפת התוצאה
         run: |
-          if git diff --quiet -- index.html editor.html; then
+          if git diff --quiet -- index.html editor.html young/; then
             echo "אין שינוי בקבצים הבנויים."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html editor.html
+          git add index.html editor.html young/
           git commit -m "בנייה מחדש של הדף מתוך הנתונים"
           git push

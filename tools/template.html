@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ארגונים העוסקים בפיתוח כלכלי בגליל המזרחי</title>
-<meta name="description" content="מיפוי הארגונים העוסקים בפיתוח כלכלי בגליל המזרחי — מרכז הידע האזורי גליל מזרחי־מערבי.">
+<title>__TITLE__</title>
+<meta name="description" content="__DESCRIPTION__">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap">
@@ -85,18 +85,20 @@ summary:focus-visible {
 .masthead .sources-line { margin-top: 6px; font-size: .8rem; }
 
 /* ------------------------------------------------------------- kpi strip */
+/* flex ולא grid, כדי שמספר המדדים ייקבע לפי המיפוי בלי להשאיר תא ריק */
 .kpis {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--line);
+  display: flex; flex-wrap: wrap;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
   margin: 26px 0 22px;
 }
-.kpi { background: var(--surface); padding: 14px 16px; }
-@media (max-width: 720px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+.kpi {
+  flex: 1 1 130px; padding: 14px 16px;
+  border-inline-start: 1px solid var(--line);
+}
+.kpi:first-child { border-inline-start: 0; }
 .kpi-val {
   font-size: 1.7rem; font-weight: 700; color: var(--ink); line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -323,43 +325,22 @@ footer.page-foot {
   <div class="masthead-in">
     <img src="__LOGO__" alt="מרכז הידע האזורי גליל מזרחי־מערבי">
     <div class="masthead-text">
-      <h1>ארגונים העוסקים בפיתוח כלכלי בגליל המזרחי</h1>
-      <p>קרנות, ארגונים מפעילים ומיזמים הפועלים באזור</p>
-      <p class="sources-line">מבוסס על מיפוי FronTech, מיפוי מרכז הידע גליל מזרחי ומערבי, גיידסטאר, מרשם העמותות ומקורות פתוחים</p>
+      <h1>__TITLE__</h1>
+      <p>__SUBTITLE__</p>
+      <p class="sources-line">__SOURCES__</p>
     </div>
   </div>
 </header>
 
 <main class="shell">
 
-  <section class="kpis" aria-label="נתונים מסכמים">
-    <div class="kpi"><div class="kpi-val" id="kpiTotal">—</div><div class="kpi-lbl">ארגונים</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiCore">—</div><div class="kpi-lbl">ליבה</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiLocal">—</div><div class="kpi-lbl">בגליל המזרחי</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiActions">—</div><div class="kpi-lbl">פעולות ותוכניות</div></div>
-  </section>
+  <section class="kpis" id="kpis" aria-label="נתונים מסכמים"></section>
 
   <section class="panel filters" aria-label="סינון">
-    <div class="field-row">
+    <div class="field-row" id="fieldRow">
       <div class="field">
         <label for="fq">חיפוש חופשי</label>
         <input type="search" id="fq" placeholder="שם, תיאור, שותף או תגית">
-      </div>
-      <div class="field">
-        <label for="fRelevance">רלוונטיות</label>
-        <select id="fRelevance"><option value="">הכול</option></select>
-      </div>
-      <div class="field">
-        <label for="fType">סוג הגוף</label>
-        <select id="fType"><option value="">כל הסוגים</option></select>
-      </div>
-      <div class="field">
-        <label for="fScope">היקף הפעילות</label>
-        <select id="fScope"><option value="">כל ההיקפים</option></select>
-      </div>
-      <div class="field">
-        <label for="fPlace">יישוב או אזור</label>
-        <select id="fPlace"><option value="">כל המקומות</option></select>
       </div>
     </div>
 
@@ -373,7 +354,7 @@ footer.page-foot {
 
   <section class="panel">
     <h2 class="panel-title">
-      תגיות נפוצות
+      __TAGS_TITLE__
       <span class="hint">לחצו לסינון</span>
     </h2>
     <div class="bars" id="bars"></div>
@@ -389,7 +370,7 @@ footer.page-foot {
   </details>
 
   <footer class="page-foot">
-    <span>מקורות: מיפוי FronTech, מיפוי מרכז הידע גליל מזרחי ומערבי, גיידסטאר, מרשם העמותות ומקורות פתוחים.</span>
+    <span>__SOURCES__.</span>
     <span>עודכן __UPDATED__ &nbsp;·&nbsp; __COUNT__ ארגונים</span>
   </footer>
 
@@ -397,6 +378,7 @@ footer.page-foot {
 
 <script>
 const PAYLOAD = /*__DATA__*/{};
+const CONFIG  = /*__CONFIG__*/{};
 const ORGS = PAYLOAD.organizations;
 const LEGEND = PAYLOAD.legend;
 
@@ -404,15 +386,25 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-const state = { q: "", relevance: "", type: "", scope: "", place: "", tags: new Set() };
+/* ערכי הסינון הנוכחיים: מפתח הפָּסֶט -> ערך יחיד, ובנוסף חיפוש וסט תגיות */
+const state = { q: "", facets: {}, tags: new Set() };
+CONFIG.facets.forEach(f => { state.facets[f.key] = ""; });
 
-/* -------------------------------------------------- vocabularies from data */
-const uniq = (arr) => [...new Set(arr.filter(Boolean))];
-const RELEVANCE = uniq(ORGS.map(o => o.relevance));
-const TYPES = uniq(ORGS.map(o => o.typeGroup)).sort((a, b) => a.localeCompare(b, "he"));
-const SCOPES = ["גליל מזרחי", "צפון והגליל", "ארצי"]
-  .filter(s => ORGS.some(o => o.scope === s));
-const PLACES = uniq(ORGS.flatMap(o => o.places)).sort((a, b) => a.localeCompare(b, "he"));
+/* ------------------------------------------------- אוצר המילים מתוך הנתונים */
+const valuesOf = (org, key) => {
+  const v = org[key];
+  return Array.isArray(v) ? v : (v ? [v] : []);
+};
+
+function vocabulary(facet) {
+  const seen = new Set();
+  ORGS.forEach(o => valuesOf(o, facet.key).forEach(v => seen.add(v)));
+  const list = [...seen];
+  return facet.order
+    ? facet.order.filter(v => seen.has(v))
+    : list.sort((a, b) => a.localeCompare(b, "he"));
+}
+
 const TAGS = (() => {
   const counts = new Map();
   ORGS.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
@@ -424,46 +416,57 @@ const TAGS = (() => {
   });
 })();
 
-function fillSelect(el, values) {
-  values.forEach(v => {
-    const opt = document.createElement("option");
-    opt.value = v; opt.textContent = v;
-    el.appendChild(opt);
-  });
-}
-fillSelect($("fRelevance"), RELEVANCE);
-fillSelect($("fType"), TYPES);
-fillSelect($("fScope"), SCOPES);
-fillSelect($("fPlace"), PLACES);
+/* ------------------------------------------------------- בניית שדות הסינון */
+CONFIG.facets.forEach(facet => {
+  const id = "f_" + facet.key;
+  const field = document.createElement("div");
+  field.className = "field";
+  field.innerHTML = `<label for="${id}">${esc(facet.label)}</label>`
+    + `<select id="${id}" data-facet="${esc(facet.key)}">`
+    + `<option value="">${esc(facet.all)}</option>`
+    + vocabulary(facet).map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("")
+    + `</select>`;
+  $("fieldRow").appendChild(field);
+});
 
-/* ------------------------------------------------------------- searchable */
+/* --------------------------------------------------------------- searchable */
 ORGS.forEach(o => {
   o._hay = [
     o.name, ...(o.aliases || []), o.type, o.typeGroup, o.areaText, o.intro,
+    ...CONFIG.meta.map(m => o[m.key]),
     ...o.tags, ...o.partners,
     ...o.actions.map(a => a.title + " " + a.body)
-  ].join(" ").toLowerCase();
+  ].filter(Boolean).join(" ").toLowerCase();
 });
 
-/* ----------------------------------------------------------------- filter */
+/* ----------------------------------------------------------------- filtering */
 function matches(o) {
   if (state.q && !o._hay.includes(state.q)) return false;
-  if (state.relevance && o.relevance !== state.relevance) return false;
-  if (state.type && o.typeGroup !== state.type) return false;
-  if (state.scope && o.scope !== state.scope) return false;
-  if (state.place && !o.places.includes(state.place)) return false;
+  for (const facet of CONFIG.facets) {
+    const want = state.facets[facet.key];
+    if (want && !valuesOf(o, facet.key).includes(want)) return false;
+  }
   for (const t of state.tags) if (!o.tags.includes(t)) return false;
   return true;
 }
 
-/* ------------------------------------------------------------------ views */
-function renderKpis(rows) {
-  $("kpiTotal").textContent = rows.length;
-  $("kpiCore").textContent = rows.filter(o => o.relevance === "ליבה").length;
-  $("kpiLocal").textContent = rows.filter(o => o.scope === "גליל מזרחי").length;
-  $("kpiActions").textContent = rows.reduce((n, o) => n + o.actions.length, 0);
+/* ---------------------------------------------------------------------- KPIs */
+function kpiValue(kpi, rows) {
+  switch (kpi.kind) {
+    case "equals":   return rows.filter(o => valuesOf(o, kpi.key).includes(kpi.value)).length;
+    case "actions":  return rows.reduce((n, o) => n + o.actions.length, 0);
+    case "distinct": return new Set(rows.flatMap(o => valuesOf(o, kpi.key))).size;
+    default:         return rows.length;
+  }
 }
 
+function renderKpis(rows) {
+  $("kpis").innerHTML = CONFIG.kpis.map(k =>
+    `<div class="kpi"><div class="kpi-val">${kpiValue(k, rows)}</div>`
+    + `<div class="kpi-lbl">${esc(k.label)}</div></div>`).join("");
+}
+
+/* --------------------------------------------------------------------- views */
 function renderChips(rows) {
   const counts = new Map();
   rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
@@ -481,9 +484,7 @@ function renderBars(rows) {
   rows.forEach(o => o.tags.forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
   const max = top.length ? top[0][1] : 1;
-  $("bars").innerHTML = top.length === 0
-    ? ""
-    : top.map(([tag, n]) => `
+  $("bars").innerHTML = top.map(([tag, n]) => `
       <button type="button" class="bar-row" data-tag="${esc(tag)}" aria-pressed="${state.tags.has(tag)}">
         <span class="bar-label">${esc(tag)}</span>
         <span class="bar-track"><span class="bar-fill" style="width:${Math.round(n / max * 100)}%"></span></span>
@@ -503,25 +504,27 @@ function actionHtml(a) {
 }
 
 function orgHtml(o) {
-  const badgeClass = o.relevance === "ליבה" ? "badge-core" : "badge-adj";
+  const badges = [];
+  if (o.relevance) badges.push(`<span class="badge ${o.relevance === "ליבה" ? "badge-core" : "badge-adj"}">${esc(o.relevance)}</span>`);
+  if (o.typeGroup) badges.push(`<span class="badge">${esc(o.typeGroup)}</span>`);
+  if (o.type && o.type !== o.typeGroup) badges.push(`<span class="badge">${esc(o.type)}</span>`);
+
   const meta = [
     o.areaText ? `<span><span class="k">מרחב פעילות</span> ${esc(o.areaText)}</span>` : "",
+    ...CONFIG.meta.map(m => o[m.key]
+      ? `<span><span class="k">${esc(m.label)}</span> ${esc(o[m.key])}</span>` : ""),
     o.website ? `<span><a href="${esc(o.website)}" target="_blank" rel="noopener noreferrer">אתר הארגון</a></span>` : ""
   ].join("");
 
-  return `<article class="org" id="${esc(o.id)}" data-relevance="${esc(o.relevance)}">
+  return `<article class="org" id="${esc(o.id)}" data-relevance="${esc(o.relevance || "")}">
     <div class="org-head"><h3 class="org-name">${esc(o.name)}</h3></div>
-    <div class="badges">
-      <span class="badge ${badgeClass}">${esc(o.relevance)}</span>
-      <span class="badge">${esc(o.typeGroup)}</span>
-      ${o.type && o.type !== o.typeGroup ? `<span class="badge">${esc(o.type)}</span>` : ""}
-    </div>
+    ${badges.length ? `<div class="badges">${badges.join("")}</div>` : ""}
     ${meta ? `<div class="org-meta">${meta}</div>` : ""}
     ${o.intro ? `<p class="org-intro">${esc(o.intro).replace(/\n/g, "<br>")}</p>` : ""}
     ${o.tags.length ? `<div class="tags">${o.tags.map(t =>
         `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
     ${o.actions.length ? `<details class="actions">
-        <summary>${o.actions.length} פעולות</summary>
+        <summary>${o.actions.length} ${o.actions.length === 1 ? "פעולה" : "פעולות"}</summary>
         <div class="action-list">${o.actions.map(actionHtml).join("")}</div>
       </details>` : ""}
     ${o.note ? `<p class="org-note">${esc(o.note)}</p>` : ""}
@@ -539,10 +542,12 @@ function render() {
     : `<div class="empty">לא נמצאו ארגונים. נסו לנקות חלק מהמסננים.</div>`;
 }
 
-/* ------------------------------------------------------------------ events */
+/* -------------------------------------------------------------------- events */
 $("fq").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
-[["fRelevance", "relevance"], ["fType", "type"], ["fScope", "scope"], ["fPlace", "place"]]
-  .forEach(([id, key]) => $(id).addEventListener("change", e => { state[key] = e.target.value; render(); }));
+$("fieldRow").addEventListener("change", e => {
+  const key = e.target.dataset.facet;
+  if (key) { state.facets[key] = e.target.value; render(); }
+});
 
 function toggleTag(tag) {
   state.tags.has(tag) ? state.tags.delete(tag) : state.tags.add(tag);
@@ -557,28 +562,22 @@ $("bars").addEventListener("click", e => {
   if (btn) toggleTag(btn.dataset.tag);
 });
 $("btnReset").addEventListener("click", () => {
-  Object.assign(state, { q: "", relevance: "", type: "", scope: "", place: "" });
+  state.q = "";
   state.tags.clear();
   $("fq").value = "";
-  ["fRelevance", "fType", "fScope", "fPlace"].forEach(id => { $(id).value = ""; });
+  CONFIG.facets.forEach(f => { state.facets[f.key] = ""; $("f_" + f.key).value = ""; });
   render();
 });
 
 /* ---- פרמטרים ב-URL: מאפשרים לפתוח את הדף כשהוא כבר מסונן, למשל מתוך מפה ---- */
 (function readUrl() {
   const p = new URLSearchParams(location.search);
-  const set = (param, key, el) => {
-    const v = p.get(param);
-    if (!v) return;
-    state[key] = v;
-    if (el) $(el).value = v;
-  };
-  set("q", "q", "fq");
-  if (state.q) { state.q = state.q.toLowerCase(); }
-  set("relevance", "relevance", "fRelevance");
-  set("type", "type", "fType");
-  set("scope", "scope", "fScope");
-  set("place", "place", "fPlace");
+  const q = p.get("q");
+  if (q) { state.q = q.toLowerCase(); $("fq").value = q; }
+  CONFIG.facets.forEach(f => {
+    const v = p.get(f.key);
+    if (v) { state.facets[f.key] = v; $("f_" + f.key).value = v; }
+  });
   (p.get("tag") || "").split(",").filter(Boolean).forEach(t => state.tags.add(t));
 })();
 

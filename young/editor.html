@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ארגונים הפועלים עם צעירים בגליל — עריכה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ink:#1B2A4E; --body:#3A465F; --muted:#6B7690;
+  --ground:#EEF1F6; --surface:#FFFFFF; --surface-2:#F7F9FC;
+  --line:#D3DBE7; --line-soft:#E8EDF4;
+  --core:#0F7DA8; --core-soft:#E6F2F8;
+  --edit:#8A5A00; --edit-soft:#FDF3E0;
+  --danger:#A03030;
+  --sans:"Assistant","Segoe UI","Arial Hebrew",Arial,sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:var(--sans); font-size:15px; line-height:1.6;
+}
+h1,h2,h3 { margin:0; color:var(--ink); }
+button, input, select, textarea { font-family:inherit; font-size:inherit; }
+:focus-visible { outline:2px solid var(--core); outline-offset:2px; border-radius:4px; }
+
+/* ---------------------------------------------------------------- topbar */
+.topbar {
+  position:sticky; top:0; z-index:30;
+  background:var(--ink); color:#fff;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:11px 18px;
+}
+.topbar h1 { color:#fff; font-size:1rem; font-weight:700; }
+.mode {
+  font-size:.72rem; font-weight:700; letter-spacing:.04em;
+  background:#F5C45E; color:#3A2A00; border-radius:100px; padding:2px 10px;
+}
+.topbar .spacer { flex:1; }
+.dirty { font-size:.83rem; color:#C9D6E8; font-variant-numeric:tabular-nums; }
+.dirty b { color:#F5C45E; }
+
+.btn {
+  border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.09);
+  color:#fff; border-radius:7px; padding:6px 13px;
+  font-size:.85rem; font-weight:600; cursor:pointer;
+}
+.btn:hover { background:rgba(255,255,255,.18); }
+.btn-primary { background:#F5C45E; border-color:#F5C45E; color:#3A2A00; }
+.btn-primary:hover { background:#FFD277; }
+
+/* ------------------------------------------------------------------ hint */
+.hint-bar {
+  background:var(--edit-soft); border-bottom:1px solid #EBDCBE;
+  color:var(--edit); font-size:.84rem; padding:9px 18px;
+}
+.hint-bar code { background:#fff; border:1px solid #EBDCBE; border-radius:4px; padding:1px 5px; }
+
+/* ---------------------------------------------------------------- layout */
+.wrap {
+  display:grid; grid-template-columns:300px 1fr; gap:16px;
+  padding:16px; align-items:start; max-width:1400px; margin:0 auto;
+}
+@media (max-width:900px) { .wrap { grid-template-columns:1fr; } }
+
+.panel {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:11px; overflow:hidden;
+}
+
+/* -------------------------------------------------------------- org list */
+.list-head { padding:11px 13px; border-bottom:1px solid var(--line-soft); }
+.list-head input {
+  width:100%; padding:7px 10px; border:1px solid var(--line);
+  border-radius:7px; background:var(--surface-2); color:var(--ink);
+}
+.list { max-height:calc(100vh - 220px); overflow-y:auto; }
+.list-item {
+  display:flex; align-items:center; gap:8px; width:100%;
+  padding:8px 13px; border:0; border-bottom:1px solid var(--line-soft);
+  background:none; text-align:start; cursor:pointer; color:var(--body);
+  font-size:.87rem; line-height:1.35;
+}
+.list-item:hover { background:var(--surface-2); }
+.list-item[aria-current="true"] { background:var(--core-soft); color:var(--ink); font-weight:700; }
+.list-item .flag { flex:0 0 6px; height:6px; border-radius:50%; background:transparent; }
+.list-item.changed .flag { background:#D9A227; }
+.list-item.added   .flag { background:#2E8B57; }
+.list-item .nm { flex:1; min-width:0; }
+
+/* ------------------------------------------------------------------ form */
+.form { padding:18px 20px 26px; }
+.form-head {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding-bottom:13px; margin-bottom:16px; border-bottom:1px solid var(--line-soft);
+}
+.form-head h2 { font-size:1.05rem; flex:1; min-width:0; }
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:640px) { .grid2 { grid-template-columns:1fr; } }
+
+.f { display:flex; flex-direction:column; gap:5px; margin-bottom:15px; }
+.f > label { font-size:.78rem; font-weight:700; color:var(--muted); }
+.f > label .mark { color:#D9A227; margin-inline-start:5px; }
+.f input[type=text], .f input[type=url], .f select, .f textarea {
+  width:100%; padding:8px 11px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:7px;
+}
+.f textarea { resize:vertical; min-height:74px; line-height:1.65; }
+.f .help { font-size:.75rem; color:var(--muted); }
+
+.opts { display:flex; flex-wrap:wrap; gap:6px; }
+.opt {
+  border:1px solid var(--line); background:var(--surface-2); color:var(--body);
+  border-radius:100px; padding:3px 11px; font-size:.8rem; cursor:pointer;
+}
+.opt:hover { border-color:var(--core); color:var(--core); }
+.opt[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:#fff; }
+
+/* --------------------------------------------------------------- actions */
+.acts { display:flex; flex-direction:column; gap:12px; }
+.act {
+  border:1px solid var(--line); border-radius:9px;
+  padding:12px 14px; background:var(--surface-2);
+}
+.act-top { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.act-top .n { font-size:.75rem; font-weight:700; color:var(--muted); flex:1; }
+.icon-btn {
+  border:1px solid var(--line); background:#fff; color:var(--muted);
+  border-radius:6px; width:26px; height:26px; cursor:pointer; line-height:1;
+}
+.icon-btn:hover { border-color:var(--core); color:var(--core); }
+.icon-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+
+.row-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.btn-ghost {
+  border:1px solid var(--line); background:#fff; color:var(--core);
+  border-radius:7px; padding:6px 13px; font-size:.83rem; font-weight:600; cursor:pointer;
+}
+.btn-ghost:hover { border-color:var(--core); background:var(--core-soft); }
+.btn-ghost.danger { color:var(--danger); }
+.btn-ghost.danger:hover { border-color:var(--danger); background:#FBEDED; }
+
+.empty { padding:60px 20px; text-align:center; color:var(--muted); }
+dialog {
+  border:1px solid var(--line); border-radius:12px; padding:0;
+  max-width:min(760px,92vw); box-shadow:0 12px 40px rgba(27,42,78,.22);
+}
+dialog::backdrop { background:rgba(27,42,78,.45); }
+.dlg-head {
+  padding:14px 18px; border-bottom:1px solid var(--line-soft);
+  display:flex; align-items:center; gap:12px;
+}
+.dlg-head h3 { flex:1; font-size:1rem; }
+.dlg-body { padding:16px 18px; max-height:60vh; overflow:auto; }
+.dlg-note {
+  background:var(--edit-soft); border:1px solid #EBDCBE; border-radius:8px;
+  padding:11px 14px; margin-bottom:13px; font-size:.86rem; color:var(--edit);
+}
+.dlg-note ol { margin:6px 0 0; padding-inline-start:20px; }
+.dlg-note li { margin:2px 0; }
+.dlg-note code { background:#fff; border:1px solid #EBDCBE; border-radius:4px; padding:1px 5px; }
+.dlg-body textarea {
+  width:100%; min-height:320px; font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.8rem; direction:ltr; text-align:left;
+  border:1px solid var(--line); border-radius:8px; padding:11px;
+}
+.dlg-foot { padding:12px 18px; border-top:1px solid var(--line-soft); display:flex; gap:8px; }
+.dlg-foot .btn { background:var(--ink); border-color:var(--ink); }
+.toast {
+  position:fixed; inset-block-end:18px; inset-inline-start:18px; z-index:60;
+  background:var(--ink); color:#fff; border-radius:8px; padding:9px 16px;
+  font-size:.85rem; opacity:0; transform:translateY(8px);
+  transition:opacity .2s, transform .2s; pointer-events:none;
+}
+.toast.on { opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>ארגונים הפועלים עם צעירים בגליל</h1>
+  <span class="mode">מצב עריכה</span>
+  <span class="spacer"></span>
+  <span class="dirty" id="dirty"></span>
+  <button class="btn" id="btnLoad">טעינת קובץ</button>
+  <button class="btn" id="btnSummary">סיכום שינויים</button>
+  <button class="btn" id="btnReset">איפוס</button>
+  <button class="btn btn-primary" id="btnExport">ייצוא</button>
+  <input type="file" id="fileInput" accept="application/json" hidden>
+</header>
+
+<div class="hint-bar">
+  העריכה נשמרת בדפדפן הזה בלבד ואינה משנה את הדף המפורסם. בסיום לוחצים
+  <b>ייצוא</b>, מקבלים <code>organizations.json</code>, ומחליפים בו את הקובץ
+  שבתיקיית <code>data/</code> במאגר — הדף נבנה מחדש מעצמו.
+</div>
+
+<div class="wrap">
+  <aside class="panel">
+    <div class="list-head">
+      <input type="search" id="q" placeholder="חיפוש ארגון">
+    </div>
+    <div class="list" id="list"></div>
+    <div style="padding:11px 13px; border-top:1px solid var(--line-soft)">
+      <button class="btn-ghost" id="btnAdd" style="width:100%">הוספת ארגון</button>
+    </div>
+  </aside>
+
+  <main class="panel">
+    <div id="form"></div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-head">
+    <h3 id="dlgTitle"></h3>
+    <button class="icon-btn" id="dlgClose" aria-label="סגירה">✕</button>
+  </div>
+  <div class="dlg-body">
+    <div class="dlg-note" id="dlgNote"></div>
+    <textarea id="dlgText" readonly></textarea>
+  </div>
+  <div class="dlg-foot">
+    <button class="btn" id="dlgCopy">העתקה</button>
+    <button class="btn" id="dlgDownload">הורדה</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BASELINE = {"organizations":[{"id":"אגודת-הסטודנטים-תל-חי","name":"אגודת הסטודנטים תל חי","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["חינוך והשכלה"],"audience":"","intro":"יו\"ר אגודת הסטודנטים","actions":[{"title":"פעילות ופרויקטים","body":"עמותה רשומה נפרדת מהמכללה. בנוסף לעבודה שגרתית של המכללה בדאגה למלגות ואירועים לסטודנטים, פועלים כרגע לקדם פתרונות דיור, תעסוקה ותרבות לסטודנטים שיחזרו אחרי המלחמה. |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"אחוות-תורה","name":"אחוות תורה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"מקדמת ומפתחת קהילות לחרדים בעולם המעשה - מרחב קהילתי רוחני תומך ומעצים לחרדים המשלבים תורה ועבודה, תוך מתן מעטפת ליווי איכותית וביסוס מנועי פיתוח וצמיחה קהילתיים.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"איילים","name":"איילים","aliases":[],"areaText":"קריית שמונה, מטולה, עכו","scope":"כלל הגליל והצפון","places":["קריית שמונה","מטולה","עכו"],"tags":["תעסוקה ויזמות"],"audience":"סטודנטים צעירים","intro":"התיישבות, תרבות, יזמות חברתית","actions":[{"title":"פעילות ופרויקטים","body":"כפרי סטודנטים בקריית שמונה, מטולה, כרמיאל ועכו - הסטודנטים מקבלים מלגות ומשתלבים בעשייה קהילתית","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"ארגון-121","name":"ארגון 121","aliases":[],"areaText":"עבודה מול האשכולות בצפון","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"עבודה ברמת המאקרו- שינוי מדיניות","intro":"1. חיזוק התשתיות החברתיות ורשת הביטחון החברתית-כלכלית 2. העצמת ארגונים החברתיים וחיזוקם","actions":[{"title":"פעילות ופרויקטים","body":"עוסקים בהיבט של המדיניות: בודקים מה קיים בכל מקום ובכל תחום, יוצרים שולחנות עגולים וועדות היגוי ומחקר ומגיעים לתובנות ונייר מדיניות. משם מתחילים לעבוד כדי לגרום למדינה לשנות מדיניות או לקדם מדיניות. תכניות בנושא תעסוקה- המקפצה - הכשרות מקצועיות. החוליה החלשה הם הלא אקדמאים, פריון נמוך, אם רוצים לשפר את מצבם צריך לעזור להם להשיג תעסוקה יותר איכותיות, הכשרה מקצועית למקצועות שבהם יש מעסיק בקצה.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"אשכול-גליל-מערבי-תחום-חברה-וקהילה","name":"אשכול גליל מערבי - תחום חברה וקהילה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"פעילויות ברשויות עצמן (מופיעות במיפוי בהתאם לתכניות): תנועת אור, תורנו, תרבות וגרעינים תורניים, פעילויות עם רוח הגליל, קרן שחף, משאבים.","intro":"","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"ברנקו-וויס","name":"ברנקו וויס","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"משימתו של ברנקו וייס היא לטפח את ההון האנושי המקומי: התלמידים, אנשי החינוך וההנהגה המקומית, ולהעניק להם את הכלים להצלחה.","actions":[{"title":"פעילות ופרויקטים","body":"ליווי רשויות התבליך החזרה הביתה מהפריזמה החינוכית |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"ג-וינט-תבת","name":"ג'וינט תבת","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"Region Up - המהלך ארוך הטווח עוסק בתחום הפריון והתעסוקה, מייצר שיתופי פעולה בין כל הגורמים השונים בכל אזור - ממשלה, רשויות מקומיות, עסקים ועוד על מנת למצוא ולהתאים ביחד את הפתרונות החדשניים ביותר לבעיות התעסוקה והפריון של אותו אזור על בסיס הצרכים שלו, המאפיינים שלו ומנועי הצמיחה הייחודיים לו וכמטרה משותפת של כלל השחקנים בפרויקט.","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"גוינט-אלכא-ומנהלת-תנופה","name":"גוינט אלכא ומנהלת תנופה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"מובילים את תכנית השיקום עבור משרד המנהלות בממשלה","actions":[{"title":"פעילות ופרויקטים","body":"מובילים את תכנית השיקום עבור משרד המנהלות בממשלה","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["טבלא לפי תחומי פעילות לקרן רשי.xlsx"]},{"id":"גלילה","name":"גלילה","aliases":[],"areaText":"כל הגליל","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"פועלים עם כל האוכלוסיות, פחות עם נוער. יותר צעירים, צרכים מיוחדים, גיל השלישי. פיתוח קהילות","intro":"העמותה פועלת לקדם, להוביל, ליצור ולתמוך בפרויקטים בכל תחומי החיים במטרה לשפר את איכות החיים של תושבי הפריפריה הצפונית","actions":[{"title":"פעילות ופרויקטים","body":"עבודה משותפת עם הביתה חוזרים לגליל , עם קרן הביתה ועם קדמה בכפרי הסטודנטים, עם האשכולות השונים. תכניות שתומכות ביזמות חברתית בגליל. שיפוץ מבנים וגני משחקים. פלטפורמה לשת\"פים של האשכולות, של הקרן הידידות ושל תכנית לשיקום הצפון. קרן לתמיכה בגליל באופן כללי","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"גליליסט-וגלילווסט","name":"גליליסט וגלילווסט","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":["גליל מזרחי ומערבי"],"tags":["מנהיגות צעירה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"התכנית מיועדת למובילי שינוי בכירים הגרים ופועלים בגליל המזרחי – מהמגזר העסקי, מהחברה האזרחית, מהרשויות המקומיות מהאקדמיה וכיו\"ב. מופעל על ידי אשכול גליל מזרחי בשיתוף קרן ראודברג , מכללת תל-חי, קרן ביחד ופדרציית וונקובר.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"דרור-ישראל","name":"דרור ישראל","aliases":[],"areaText":"גולן, מבואות חרמון, מעלה יוסף, מרום גליל, מטה אשר, הגליל העליון, עכו, נהריה, קרית שמונה...","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"ילדים ונוער, נוער בסיכון, צעירים, אבות ובנים בחלוץ, הגיל השלישי, חיילים, עו\"סים","intro":"בוגרי תנועת הנוער העובד והלומד, פעילות נרחבת בכל הצפון","actions":[{"title":"פעילות ופרויקטים","body":"דרור ישראל היא המטריה שבה פועלת \"תורנו\". יש להם פעילויות רבות, בין היתר: קיבוצי מחנכים (כרמיאל ועכו), בתי חינוך ומכינה (קיבוץ רביד) והם מלווים מערכות חינוך פורמאליות ובלתי פורמאליות\", תנועת נוער (הנוע\"ל), מרכז הדרכה (המעורר), רוג'ום פעילות התנדבותית צעירים למען צעירים, שיתופי פעולה עם מרכזי צעירים, החלוץ- פעילות ספורטיבית-ערכית לנוער, קבוצות משימתיות לבני הגיל השלישי, פרקי משימה לחיילים בשירות הנח\"ל, \"יחד צפוני\"- גג לפעילות קהילתית יחד עם הרשויות בק\"ש נהריה ומטולה לעבודה של שיקום ושיבה פרויקט השיירה- פעילות קהילתית דרך מוזיקה במטולה, עכו, קצרין נהריה. שורש בגליל- מיזם יחד עם משרד הרווחה להבאת עו\"סים לצפון והקמת קבוצות מקצועיות. גרעיני עודד של שנת שירות","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"דרך-רביד-מפלסי-נתיב","name":"דרך רביד -מפלסי נתיב","aliases":[],"areaText":"גליל עליון","scope":"גליל מזרחי","places":["גליל עליון"],"tags":["כללי"],"audience":"צעירים בגילאי 20-25","intro":".גוף שיקום וצמיחה לקהילות בגליל ובנגב","actions":[{"title":"פעילות ופרויקטים","body":"תמיכה בצעירים שעובדים בחינוך הבלתי פורמלי של הקיבוצים באמצעות קהילת צעירים. סיוע לקיבוצים בגיוס כוח אדם","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"הביתה-חוזרים-לגליל","name":"הביתה חוזרים לגליל","aliases":[],"areaText":"גליל עליון","scope":"גליל מזרחי","places":["גליל עליון"],"tags":["התיישבות וציונות","חינוך והשכלה","תעסוקה ויזמות"],"audience":"","intro":"תעסוקה ויזמות (HUBayta): מתחם חדשנות ענק (1,300 מ\"ר) שנפתח ליד מלון גליליון (עמק החולה), לוח משרות באתר שלהם.","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"הננו","name":"הננו","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["התיישבות וציונות"],"audience":"","intro":"מיישבת צעירים (20-35) בתוך קהילות קיימות בצפון","actions":[{"title":"פעילות ופרויקטים","body":"עזרה במציאת דיור, תעסוקה וחיבור לקהילה,-הארגון מסייע במציאת דיור, חיבור למעסיקים מקומיים, ויצירת חיי חברה לצעירים כדי למנוע בדידות מתיישבים בתוך הקהילות בצפון ומקבלים סיוע ומעטפת מהארגון.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"הסוכנות-היהודית","name":"הסוכנות היהודית","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"אקוסיסטם צמיחה גיאגרפית, פורום מנכ\"לי ארגונים","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"הסוכנות-היהודית-בוחרים-מחר","name":"הסוכנות היהודית - בוחרים מחר","aliases":[],"areaText":"נהריה, עכו, קצרין, צפת","scope":"כלל הגליל והצפון","places":["נהריה","עכו","קצרין","צפת"],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"תכנית ארצית הפועלת בפריפריה הגיאוגרפית והחברתית בישראל המחזקת קהילות מקומיות ופועלת לפיתוח מנהיגות קהילתית ואחריות חברתית של צעירים למען הקהילה המקומית","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"הקרן-לידידות","name":"הקרן לידידות","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"","intro":"פועלים בשיתוף עם משרד הרווחה תקציבית יחד עם עמותות נוספות שפונות לקרן","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":["טבלא לפי תחומי פעילות לקרן רשי.xlsx"]},{"id":"הרשת-הגלילית","name":"הרשת הגלילית","aliases":[],"areaText":"גליל מזרחי","scope":"כלל הגליל והצפון","places":["גליל מזרחי"],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"מאגד צעירים שמעוניים לקחת חלק בפעילויוצת, עובד גם דרך מרכזי הצעירים. וללוות פיתוח יזמת צעירים התומכת בקבילה דרך place marketing לשימור קהילה.","intro":"רשת של 800 צעירים (אינדיבידואלים)","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"השומר-החדש","name":"השומר החדש","aliases":[],"areaText":"גליל עליון, גולן","scope":"גליל מזרחי","places":["גליל עליון","גולן"],"tags":["התיישבות וציונות"],"audience":"","intro":"השומר החדש הוא ארגון חברתי – ציוני, המחבר בין החברה בישראל, לאדמה ולמורשת ברוח של ערבות הדדית, אומץ אזרחי ואהבת הארץ.","actions":[{"title":"פעילות ופרויקטים","body":"פועלים עם בני נוער בתנועת השומר החדש ובתיב הספר של אדם ואדמה ביראון ובגולן. ביחד עם הקרן הקיימת לישראל הם פעילים עם מתנדבים צעירים בשטחים הפתוחים בחרבי הגליל העליון, המערבי והגולן במסגרת פרויקט \"שומר היער\". תכניות מנהיגות של ש\"ש, עבודה בחקלאות ובשמירה","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"זיו-נעורים","name":"זיו נעורים","aliases":[],"areaText":"גינוסר, עכו","scope":"כלל הגליל והצפון","places":["גינוסר","עכו"],"tags":["קהילה וחברה"],"audience":"נוער בסיכון בין ז'-י\"ב, בוגרים, משפחות, ילדים, מתן מענה למילואימניקים ולפוסט-טראומתיים (מוכרים במשרד הביטחון ובביטוח לאומי)","intro":"מרכזים ימיים עבור נוער בסיכון","actions":[{"title":"פעילות ופרויקטים","body":"פעילות ימית משולבת עם תכנית חינוכית. נישה טיפולית חדשה","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"חוזרים-הביתה-מיסודה-של-רעיה-שטראוס","name":"חוזרים הביתה - מיסודה של רעיה שטראוס","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["התיישבות וציונות","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"הצבת מבני מגורים זמניים ואיכותיים במושבים (כגון שתולה), המאפשרים למשפחות לעבור לצפון מיידית לתקופת ניסיון או עד בניית בית הקבע- מתאים למשפחות צעירות או זוגות מבוססים יותר (בגילאי 30+)","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"חותם","name":"חותם","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"פיתוח מנהיגות חינוכית מגוונת, ליצירת ידע יישומי ולהובלת שינויים מערכתיים המקדמים חינוך ציבורי שוויוני וטוב.","actions":[{"title":"פעילות ופרויקטים","body":"בגליל ישנם כ-120 בוגרי תכנית חותם, בהמשך המלחמה רבים עזבו. בונים כרגע תכנית מעטפת שתתן להם מענה גם בצפון. נפתחת קבוצה של \"עמיתי חותם\" בוגרי צבא לפני תואר ראשון שישתלבו פה בחינוך הבלתי פורמאלי ובהמשך יעשו בבית ברל תואר ראשון ושני |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"יהב","name":"יהב","aliases":[],"areaText":"קריית שמונה, ראש פינה, כפר הנשיא, משגב עם, להבות הבשן","scope":"גליל מזרחי","places":["קריית שמונה","ראש פינה","כפר הנשיא","משגב עם","להבות הבשן"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, שנות שירות, מכינות, תיכונים, צעירים. הקבוצה שעוברת תהליך מעבירים מפגשי לימוד ואירועי תרבות לנוער וצעירים במקומות אחרים","intro":"חינוך למצוינות","actions":[{"title":"פעילות ופרויקטים","body":"קבוצת סטודנטים שנפגשת ועוברת תהליכים חינוכיים- הגות ציונית קלאסית, יהדות, בירור זהות, עשיה","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"יוזמת-בלומברג","name":"יוזמת בלומברג","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"צעירים וסטונדטים","intro":"תעסוקה והשארת צעירים","actions":[{"title":"פעילות ופרויקטים","body":"פרויקט צעירים בשיתוף עם מכללת תל חי / אוניברסיטת קריית שמונה בגליל,","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"יישוב-חלוצי","name":"יישוב חלוצי","aliases":[],"areaText":"מעלות תרשיחא","scope":"גליל מערבי","places":["מעלות תרשיחא"],"tags":["התיישבות וציונות"],"audience":"צעירים","intro":"בינוי קהילה","actions":[{"title":"פעילות ופרויקטים","body":"בניית קהילה צעירה חזקה ומחויבת כמנוף לשיקום ולהתחדשות של רשויות שנפגעו במלחמה, תוך שילוב הצעירים במרכז ההחלטות והעשייה כחלק מן המנהיגות המקומית ומתן מענה ממוקד לצרכיהם.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["https://rashi.org.il/programs/young-pioneers/#"]},{"id":"יעדים-לצפון","name":"יעדים לצפון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"מגיל ינקות ועד מבוגרים","intro":"מיסודה של קרן רש\"י, עובדים על מגוון פרויקטים: החל ממעונות יום ויחידות התפתחותיות בצפון, פרויקט ראשית במעלות, בתים חמים לנערות בחברה הערבית, קידום השכלה ותעסוקה בחברה הערבית, ריטריט לעיבוד לנוער לאחר ה7.10, ליווי קהילות לקידום אג'נדה, מרכזי כרם לילדים נפגעי תקיפה מינית, מגדל אור שנותנת שירותים לאנשים עם לקות ראיה ועיוורון","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"ישראל-2050","name":"ישראל 2050","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"הכשרת סטודנטים וצעירים לאקטיביזם חברתי-כלכלי ומיצוי זכויות. \"צוותי השפעה\": קבוצות סטודנטים שפועלות מול הרשויות לשיפור תחב\"צ, דיור ותעסוקה. קואליציות מקומיות: בניית כוח פוליטי צעיר בתוך הרשויות.","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"כל-ישראל-חברים-ממזרח-שמש","name":"כל ישראל חברים/ממזרח שמש","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"תכנית מנהיגות לצעירים בני המקום, סטונדטים שמתנדבים בקהילה וחונכים תלמידים בבתי ספר","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"לב-אחד","name":"לב אחד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"חינוך, תעסוקה, השכלה.","actions":[{"title":"פעילות ופרויקטים","body":"הארגון סיוע אזרחי הופעל במצבי חרום. מתנדבים לשיקום היישובים ועזרה לתושבים. מקיימים חנ\"ל מתנדבים |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מוטב-יחדיו","name":"מוטב יחדיו","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["קהילה וחברה"],"audience":"","intro":"בינוי קהילה","actions":[{"title":"פעילות ופרויקטים","body":"מוטב יחדיו - בינוי קהילה, תחילת פתיחת הרובעים בעיר. עובדים עם מערך המתנדבים, | מכינת תבור במרץ פותחים שלוחה בקריית שמונה ויגורו בעיר. ייכנסו לתוך הרובעים, יתחילו לעבוד.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מיזם-מעלה","name":"מיזם מעלה","aliases":[],"areaText":"עכו, מעלות תרשיחא, קריית שמונה, מטה אשר","scope":"כלל הגליל והצפון","places":["עכו","מעלות תרשיחא","קריית שמונה","מטה אשר"],"tags":["מנהיגות צעירה"],"audience":"","intro":"ליווי רשויות ונתינת כלים מקצועיים לפיתוח תחום הצעירים בתחומן, גיבוש מדיניות רשותית ובניית תכניות אסטרטגיות לתחום זה","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מכון-שיטה","name":"מכון שיטה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"חיזוק ערכי הדמוקרטיה המקומית בעבודה עם נבחרי ציבור","actions":[{"title":"פעילות ופרויקטים","body":"מכון מדיניות עם השלטון המקומי. חיזוק הדמוקרטיה המקומית. חלק מהפעילויות זו תכנית מתמחים שלומדים כדי להיות נבחרי ציבור. |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מכללת-תל-חי","name":"מכללת תל חי","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה","תעסוקה ויזמות"],"audience":"","intro":"מנהל הסטודנטים","actions":[{"title":"פעילות ופרויקטים","body":"1. עידוד חזרה לסטודנטים באמצעות משרד האוצר 2. מל\"ג - יאפשר שכ\"ל חינם ככל הנראה גם לשנה הבאה 3. פילנתרופיה - משרתי מילואים, חוסן, הגדלת הטבות (לשיחה עם קש\"ח)","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מכללת-תל-חי-מרכז-תעסוקה-והשכלה","name":"מכללת תל חי - מרכז תעסוקה והשכלה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה","תעסוקה ויזמות"],"audience":"מטרת המרכז לפיתוח קריירה להעניק לסטודנטים ולבוגרים כלים ישומיים למעבר מעולם האקדמיה לעולם התעסוקה וניעות בין תפקידים במהלך ניהול קריירה.","intro":"מרכז תעסוקה והשכלה","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מסאר-מבית-קרן-אדמונד-דה-רוטשילד","name":"מסאר מבית קרן אדמונד דה רוטשילד","aliases":[],"areaText":"כפר יאסיף, אבו סנאן, ירכא, חורפיש, בית ג'אן, טובא-זנגריה, גוש חלב","scope":"כלל הגליל והצפון","places":["כפר יאסיף","אבו סנאן","ירכא","חורפיש","בית ג'אן","טובא-זנגריה","גוש חלב"],"tags":["חינוך והשכלה","תעסוקה ויזמות","קהילה וחברה"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"תוכנית מנהיגות והכנה לאקדמיה לצעירים וצעירות בוגרי תיכון מהחברה הערבית שמטרתה לפתח עתודת מנהיגות צעירה בעלת תודעה חברתית, ערכית, מנהיגותית וקהילתית.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מעברים-אצבע-הגליל","name":"מעברים אצבע הגליל","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"ליווי מחפשי עבודה שכירים, ליווי מעסיקים, לוח משרות אזורי","actions":[{"title":"פעילות ופרויקטים","body":"קשר עם גופי תעסוקה ועסקים, קשר עם מעסיקים","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מעוז","name":"מעוז","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה"],"audience":"","intro":"רשת מובילים בקהילות","actions":[{"title":"פעילות ופרויקטים","body":"נותנים מענה דרך חברי הרשת שלהם ברשויות (כמו מיכל רייקין ועתר רזי-אורן |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מפקדת-אלון","name":"מפקדת אלון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"","intro":"","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מצפינים-צעירים","name":"מצפינים צעירים","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"מטה הצעירים של פורום מצפינים לשינוי המציאות בצפון","actions":[{"title":"פעילות ופרויקטים","body":"פועלים כלובי צעירים בעבודה מול משרדי ממשלה ורשויות מובילים נרטיב של ‘משימה לאומית/ ציונות 25' שמעצים את ערכי האזור ומעודד חזון של צמיחה ושינוי כחלק מהתחדשות לאומית.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"מקו-ם-מועצת-הקבוצות-והקהילות-המשימתיות-בישראל","name":"מקו\"ם - מועצת הקבוצות והקהילות המשימתיות בישראל","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"מועצה משותפת: כנסי הנהגות, סמינרי אסיפה, בי\"ס לקבוצות וקהילות משימתיות בישראל, המסע לשוויון חברתי, מקו\"ם בתנועה.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מרכז-יסודות-רש-י","name":"מרכז יסודות /רש\"י","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["קהילה וחברה"],"audience":"","intro":"שיפור המערכות הציבוריות על ידי פיתוח וגיוון ההון האנושי, מיצוב השירות הציבורי בחברה הישראלית.","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מרכז-לאודר","name":"מרכז לאודר","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"מוביל ומקדם הזדמנויות תעסוקה חדשות ואטרקטיביות בנגב ובגליל.","actions":[{"title":"פעילות ופרויקטים","body":"מתקיימים מפגשי נטוורקינג וסדנאות הכנה מקצועיות שמטרתם לחבר מועמדים עם מעסיקים מובילים באזור. מתארגנים אירועים ייעודיים לחיבור בין מועמדים למעסיקים, הכוללים גם \"ימי גיוס\" וגם מפגשי ייעוץ והכוונה מקצועית. |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"מרכזים-לצדק-חברתי","name":"מרכזים לצדק חברתי","aliases":[],"areaText":"קריית שמונה, קצרין, נהריה, עכו","scope":"כלל הגליל והצפון","places":["קריית שמונה","קצרין","נהריה","עכו"],"tags":["כללי"],"audience":"תושבים- לעתים מיקוד בצעירים אבל לאו דווקא","intro":"התמודדות עם חוסר אונים פוליטי נרכש","actions":[{"title":"פעילות ופרויקטים","body":"הכשרה לפעילים חברתיים, תושבים ופעילים. עובדים עם הרשויות והאזרחים ובונים קהילה סביב הנושא הזה. פיתוח מנהיגות מקומית . קול מקומי- מכשירים חברי מועצה מכהנים ומועמדים לרשויות.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"משאבים","name":"משאבים","aliases":[],"areaText":"משאבים נמצאת בקרית שמונה, מרכזי החוסן שאותם הם מפעילים פרוסים בצפון","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"אוכלוסיה רחבה- מגיל 6 ומעלה. טיפול דיאדי גם לגיל הרך","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"מרכזי חוסן פועלים ב36 מרכזים ברחבי הצפון. מענים- טיפול נפשי לנפגעי חרדה וטראומה (דרך משרד הבריאות וביטוח לאומי). פעילויות בגני ילדים, בתי ספר ותיכונים למתן כלים להתמודדות. פעילויות להורים, אמהות לחיילים, נשות מילואים, אזרחים ותיקים, אנשי מילואים. קבוצות טיפוליות בבתי ספר. ליווי רשויות בעיבוד ובהיערכות לחירום","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"משרד-הביטחון","name":"משרד הביטחון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","intro":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","actions":[{"title":"פעילות ופרויקטים","body":"מענה למילואימניקים בתחום זכויות, מענקים וכיו\"ב, גם דרך מרכזי הצעירים","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["טבלא לפי תחומי פעילות לקרן רשי.xlsx"]},{"id":"משרד-הנגב-והגליל","name":"משרד הנגב והגליל","aliases":[],"areaText":"גליל מזרחי ומערבי","scope":"כלל הגליל והצפון","places":["גליל מזרחי ומערבי"],"tags":["כללי"],"audience":"","intro":"רשות הצעירים - מפעילים את מרכזי הצעירים","actions":[{"title":"פעילות ופרויקטים","body":"גופים עירוניים המספקים שירותים מקיפים ונרחבים לאוכלוסיית הצעירים וליצירת מקום להזדמנויות ומימוש הפוטנציאל האישי והקהילתי.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"משרד-העבודה","name":"משרד העבודה","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"הכשרות מותאמות שוק,סדנאות מיומנויות רכות וקשות, וחבירה לתשתיות שנותנות מענה לתעסוקה באופן כללי.","intro":"מוביליות כלכלית תעסוקתית לצעירים בפריפריה חברתית-גיאוגרפית","actions":[{"title":"פעילות ופרויקטים","body":"1.מיזם פלוס - מיזם לעתודה ניהולית, סוף פברואר, מכללת גישות. 50 צעירים 2. קורס סושיאל לצעירים גם עזרה לעסקים 3. ריטריט תעסוקה שכולל גם הרצאות בנושא תעסוקה 4. הכשרות עם אשכול גליל מערבי ומזרחי.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"עושים-שכונה","name":"עושים שכונה","aliases":[],"areaText":"שלומי, מעלות תרשיחא, עכו","scope":"גליל מערבי","places":["שלומי","מעלות תרשיחא","עכו"],"tags":["מנהיגות צעירה"],"audience":"נוער כללי ונוער בסיכון, צעירים, מלגאים, תושבי שכונות מצוקה","intro":"בינוי קהילה והצמחת מנהיגות שכונתית","actions":[{"title":"פעילות ופרויקטים","body":"מכינה קדם צבאית \"אופק\", בניית קהילות שכונתיות והצמחת מנהיגות מקומית, שיקום שכונות, סיירות הורים ונוער, הכשרות מנהיגות, גינה ומגדל- שיקום הצפון, עידוד צעירים לגיוס משמעותי לצה\"ל, גרעיני בנות שירות ושנת שירות, עיר מקלט- שיקום מקלטים","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"עמותת-אחינועם","name":"עמותת אחינועם","aliases":[],"areaText":"גליל מערבי","scope":"כלל הגליל והצפון","places":["גליל מערבי"],"tags":["קהילה וחברה"],"audience":"","intro":"קידום שוויון הזדמנויות","actions":[{"title":"פעילות ופרויקטים","body":"צמצום פערים חברתיים וחיזוק חוסן החברה בישראל באמצעות קידום שוויון הזדמנויות ומוביליות חברתית עבור צעירים מהפריפריה הגיאוגרפית והחברתית: מלגות לסטודנטים וליוויים, הכשרות מקצועיות. |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"עמותת-ביצור","name":"עמותת ביצור","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, תושבי קהילה צעירה קרית שמונה, תושבים מהגיל השלישי ועוד","intro":"חינוך, קהילה והתיישבות, עמותה בערכי התורה","actions":[{"title":"פעילות ופרויקטים","body":"מדרשה לאומנויות בתל חי, תכניות לחיזוק ערכים וזהות בבתי ספר, בנות שירות, גרעין קהילתי- קהילה שעושה פרויקטים בעיר, פרויקט לקליטת משפחות חדשות שלא גרו בקריית שמונה, תכניות חינוך עם אגף החינוך, הדרכת טיולים בקריית שמונה והאזור, מרכז תעסוקה ויזמות לגיל השלישי, תיירות עירונית ואזורית, תעסוקת מבוגרים עשייה חברתית והתנדבות","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"עמותת-צורים","name":"עמותת צורים","aliases":[],"areaText":"משתנה, כרגע יש בנהריה חצור טבריה ועוד","scope":"כלל הגליל והצפון","places":[],"tags":["כללי"],"audience":"נוער בסיכון לפני גיוס, צעירים, אנשי תעשייה","intro":"הכשרה מקצועית טכנולוגית","actions":[{"title":"פעילות ופרויקטים","body":"חיבור בין מפעלים ומכללות, קיום קורסי הכשרה, שיתופי פעלה עם ארגונים נוספים, הכשרת נוער בסיכון בהכשרות לקראת תפקידים בצה\"ל","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"עמותת-שחר","name":"עמותת שחר","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["התיישבות וציונות"],"audience":"צעירים","intro":"התיישבות בנגב ובגליל","actions":[{"title":"פעילות ופרויקטים","body":"מכינות קדם צבאיות, תכניות בוגרים, מקימים גרעין התיישבותי בקריית שמונה זה עוד בהתווהות השאיפה היא שזה יתפתח לעוד מקומות","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"עתידים","name":"עתידים","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות"],"audience":"","intro":"עידוד מצוינות והשמה בתחומי ההייטק","actions":[{"title":"פעילות ופרויקטים","body":"|","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"פורום-מנהלי-מרכזי-צעירים-הסוכנות-היהודית","name":"פורום מנהלי מרכזי צעירים הסוכנות היהודית","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","קהילה וחברה"],"audience":"","intro":"פורום אזורי של מנהלי מרכזי צעירים בשילוב האשכול","actions":[{"title":"פעילות ופרויקטים","body":"ליווי מנהלי מרכזי הצעירים, מפגש פעם בחודש","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["גליל מזרחי"]},{"id":"קדמה","name":"קדמה","aliases":[],"areaText":"רחבי הגליל","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"צעירים אחרי צבא, סטודנטים","intro":"חיזוק החוסן הקהילתי ביישובי גבול","actions":[{"title":"פעילות ופרויקטים","body":"כפרי סטודנטים בכפר סאלד, כפר יובל, ראש פינה (גם כפר סטודנטים וגם כפר צעירים). במשגב עם ומנרה כרגע לא התאפשר- כן יש כפר צעירים לאחרי צבא (לא סטודנטים). קומונות ש\"ש גם בכמה מוקדים","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"קרן-אדמונד-דה-רוטשילד","name":"קרן אדמונד דה רוטשילד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["מנהיגות צעירה","חינוך והשכלה","התיישבות וציונות","תעסוקה ויזמות"],"audience":"","intro":"הקרן פועלת ליצירת חברה ישראלית צודקת ומלוכדת, בהמשך למורשת פילנתרופית בת 140 שנים. הקרן מקדמת מצוינות, גיוון ומנהיגות באמצעות השכלה גבוהה ומשקיעה בסוכני שינוי חברתי בישראל. הקרן מובילה פרויקטים חדשניים ברחבי הארץ שמטרתם צמצום פערים וטיפוח מנהיגות צעירה. פעילותה מתמקדת בחמישה תחומים מרכזיים: * מיצוי השכלה גבוהה מצויינות אקדמית * פיתוח מנהיגות צעירה ומגוונת * קידום מעורבות חברתית באמצעות אמנות * השקעה במודלים כלכליים-חברתיים פורצי דרך פעילות הקרן משפיעה על עשרות אלפי אנשים ומעצבת את דור ההמשך של חלוצי ישראל ויזמיה","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"קרן-ביחד","name":"קרן ביחד","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["תעסוקה ויזמות","חינוך והשכלה"],"audience":"","intro":"שוויון הזדמניויות ומוביליות","actions":[{"title":"פעילות ופרויקטים","body":"הקרן תומכת בארגונים רבים הפועלים במרחב","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"קרן-שחף","name":"קרן שחף","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":["חינוך והשכלה"],"audience":"","intro":"הקרן מתעסקת בתחום הקהילה והקהילתיות וכל הנגזרות הנוגעות בזה, יש נגיעה בתחומי תוכן, חינוך, רווחה. בק\"ש - צעירים ככח צמיחה.","actions":[{"title":"פעילות ופרויקטים","body":"הקרן מתעסקת בתחום הקהילה והקהילתיות וכל הנגזרות הנוגעות בזה, יש נגיעה בתחומי תוכן, חינוך, רווחה. בק\"ש - צעירים ככח צמיחה.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["טבלא לפי תחומי פעילות לקרן רשי.xlsx"]},{"id":"ריאן-מרכזי-תעסוקה","name":"ריאן מרכזי תעסוקה","aliases":[],"areaText":"כפר יאסיף, ג'וליס, אבו סנאן, ירכא, חורפיש, בית ג'אן, טובא-זנגריה, גוש חלב","scope":"כלל הגליל והצפון","places":["כפר יאסיף","ג'וליס","אבו סנאן","ירכא","חורפיש","בית ג'אן","טובא-זנגריה","גוש חלב"],"tags":["תעסוקה ויזמות"],"audience":"","intro":"","actions":[{"title":"פעילות ופרויקטים","body":"הכוונה, הכשרה, השמה וליווי תעסוקתי","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"שותפויות-אדמונד-דה-רוטשילד","name":"שותפויות אדמונד דה רוטשילד","aliases":[],"areaText":"גולן, אצבע הגליל","scope":"גליל מזרחי","places":["גולן"],"tags":["מנהיגות צעירה"],"audience":"נוער כללי, סטודנטים, צעירים, הורים וצוותים חינוכיים, כולל חיילים ומשוחררים","intro":"תכניות מנהיגות צעירה ומגוונת","actions":[{"title":"פעילות ופרויקטים","body":"שגרירי רוטשילד- תל חי, קו הזינוק באצבע הגליל ובגליל המערבי |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"תוצרת-הארץ","name":"תוצרת הארץ","aliases":[],"areaText":"קריית שמונה, מנרה, מלכיה, משמר הירדן, חצור הגלילית, קצרין, צפת","scope":"גליל מזרחי","places":["קריית שמונה","מנרה","מלכיה","משמר הירדן","חצור הגלילית","קצרין","צפת"],"tags":["חינוך והשכלה"],"audience":"סטודנטים, צעירים, משפחות צעירים","intro":"קהילות סטודנטים וקהילות צעירים","actions":[{"title":"פעילות ופרויקטים","body":"קהילות סטודנטים בצפון - ק\"ש, חצור הגלילית, קצרין וצפת. קהילות בוגרים - ק\"ש. פרויקטים נוספים: \"רוח צפונית\" - ליווי קהילות, חזרה הביתה. \"קהילות אופק\" - בני המקום, \"קהילות עוגן\" - עיבוי קהילתי במנרה, מלכיה, משמר הירדן, קרית שמונה. השותפות היא עם גופים ממשלתיים או פילנתרופיים. תחת המועצה המשותפת של \"מקום\". |","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"תורנו-דרור-ישראל","name":"תורנו - דרור ישראל","aliases":[],"areaText":"קריית שמונה, מטולה","scope":"גליל מזרחי","places":["קריית שמונה","מטולה"],"tags":["חינוך והשכלה"],"audience":"סטודנטים רווקים בגילאי 25-35","intro":"חינוך, עשיה קהילתית","actions":[{"title":"פעילות ופרויקטים","body":"התיישבות צעירים בקהילות בקו העימות- יש קבוצה שהסתיימה 10 חבר'ה שנשארו בצפון. קבוצה בק\"ש של 16 חבר'ה, עוד קבוצה של 15 במטולה. מתכננים גם הקמה בקיץ במטה אשר ובקרית שמונה ובגליל עליון.","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"תנועת-אור","name":"תנועת אור","aliases":[],"areaText":"קריית שמונה, מעלות תרשיחא, מטולה, קצרין, שלומי, חצור הגלילית","scope":"כלל הגליל והצפון","places":["קריית שמונה","מעלות תרשיחא","מטולה","קצרין","שלומי","חצור הגלילית"],"tags":["התיישבות וציונות"],"audience":"כל אדם שמעוניין במעבר לנגב ולגליל, כל תושב שגר במקומות הפעילים. דגש על משפחות צעירים. הסמכת צעירים ומשוחררים טריים לפיקוח ובניה (למשל בקרית שמונה)","intro":"התיישבות בנגב ובגליל, פיתוח אזורי","actions":[{"title":"פעילות ופרויקטים","body":"הפעילות שלהם מושתתת בעיקר עם יצירת החיבורים למרכזי התיישבות בצפון ובדרום (דגש על רשויות גדולות). כמו כן יש פרויקטים ספציפיים: מרכז אסטרטגיה אזורי, הקמת קהילות צעירים (קהילות אור) בשכונות קיימות בערים כמו קורצ'אק בעכו ושפרינצק בק\"ש, מחלקת התיישבות (הבאת קבוצות ותושבים למגורים בנגב ובגליל), מרכז המידע עבור מעבר צפונה ודרומה (כולל עידוד רופאים צעירים להגיע לעבודה בפוריה). עובדים גם עבור משרד הנגב והגליל. השנה התמקדו במטולה שלומי ומעלות. מחלקת שיווק לכל המטרות הללו","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"תנועת-תרבות","name":"תנועת תרבות","aliases":[],"areaText":"בצפון כולו- גולן, גליל עליון, קרית שמונה, גליל מערבי לאורכו","scope":"כלל הגליל והצפון","places":[],"tags":["חירום וחוסן"],"audience":"נוער וצעירים, אזרחים ותיקים","intro":"פיתוח חוסן חברתי דרך תרבות ואומנות בפריפריה הגאו-חברתית בישראל.","actions":[{"title":"פעילות ופרויקטים","body":"מעיין כוחי: חוסן באמצעות אמנות, לחבור בין אמנים למטפלים (תכנית שעובדת בק\"ש, נהריה, מעלה יוסף, צפת, שלומי). בנהריה: קהילה של בוגרי תנועת תרבות שמשתלבים בגליל המערבי, מוסד תרבות (ימה) שמארח אומנים, בית קפה חברתי. שימוש במפעל זוגלובק הישן לטובת חממה ליוצרים. בקרית שמונה- בית המורשת והזהות העירונית בבית החאן (פעילות קבועה), יזמים צעירים בתחומי התרבות והמורשת, גם בבי\"ס דנציגר עם הנוער. התווספו גם- 4 מרכזי תרבות במעלה יוסף (יערה, אבן מנחם ו2 נוספים). רשת סוכני תרבות בגליל מזרחי (צפת, מג'דל שמס, רמת הגולן, מעלות) ובגליל מערבי (עכו, מטה אשר). בית יוצרים בשלומי- פעילות בתחומי תרבות מוזיקה ומחול עם יחידת הנוער של שלומי. בבי\"ס גליל מערבי- בתיכון יש שלוחה שעובדת אחה\"צ בתחומי התרבות. בשלומי נהריה וצפת- מיזם 'קהילת תרבות רב דורית' שמשלבת בני גיל השלישי עם התרבות והיצירה","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":["מסד נתונים שחקנים בתחום צעירים- ישוב חלוצי צפון עם רוטשילד (2).xlsx"]},{"id":"תנופה-לצפון","name":"תנופה לצפון","aliases":[],"areaText":"","scope":"כלל הגליל והצפון","places":[],"tags":[],"audience":"","intro":"","actions":[],"partners":[],"note":"","internalNote":"","website":"","sources":[]},{"id":"תעסוקה-יוזמת-בלומברג","name":"תעסוקה + יוזמת בלומברג","aliases":[],"areaText":"קריית שמונה","scope":"גליל מזרחי","places":["קריית שמונה"],"tags":["התיישבות וציונות"],"audience":"צעירים סטודנטים","intro":"כפר סטודנטים לבוגרי תנועת בני עקיבא, לוקחים חלק בעשיה בעיר","actions":[{"title":"פעילות ופרויקטים","body":"כיצד נשאיר צעירים ואת בוגרי תל חי בגליל המזרחי?","partners":[]}],"partners":[],"note":"","internalNote":"","website":"","sources":[]}],"legend":[{"topic":"מטרת הקובץ","text":"מיפוי הארגונים הפועלים עם צעירים בגליל ובצפון: מנהיגות צעירה, חינוך והשכלה, תעסוקה ויזמות, קהילה וחברה, התיישבות וציונות וחירום וחוסן."},{"topic":"פרטי קשר","text":"הדף אינו מציג שמות של אנשי קשר או מספרי טלפון. פנייה לארגון נעשית דרך הערוצים הפומביים שלו."},{"topic":"מרחב פעילות","text":"המיפוי משתרע על הגליל המזרחי והמערבי. מסנן היישובים כולל רק ערכים שנרשמו כמקום; תיאורי פעילות חופשיים נשמרו כטקסט ואינם ניתנים לסינון."},{"topic":"סייג","text":"המיפוי משקף את המקורות שסופקו. אין זו רשימה ממצה של כלל הארגונים הפועלים במרחב."}],"tagOrder":["מנהיגות צעירה","חינוך והשכלה","תעסוקה ויזמות","קהילה וחברה","התיישבות וציונות","חירום וחוסן","כללי"]};
+const CONFIG   = {"key":"young","title":"ארגונים הפועלים עם צעירים בגליל","subtitle":"מיפוי השחקנים בתחום הצעירים בגליל ובצפון","description":"מיפוי הארגונים הפועלים עם צעירים בגליל ובצפון — מרכז הידע האזורי גליל מזרחי־מערבי.","sources":"מבוסס על מסד הנתונים \"שחקנים בתחום צעירים\" ועל קבצי מיפוי של קרן רש\"י","tagsTitle":"תחומי פעילות","facets":[{"key":"scope","label":"היקף הפעילות","all":"כל ההיקפים","order":["גליל מזרחי","גליל מערבי","כלל הגליל והצפון"]},{"key":"places","label":"יישוב או אזור","all":"כל המקומות","multi":true}],"kpis":[{"label":"ארגונים","kind":"count"},{"label":"תחומי פעילות","kind":"distinct","key":"tags"},{"label":"יישובים ואזורים","kind":"distinct","key":"places"}],"meta":[{"key":"audience","label":"אוכלוסיית יעד"}],"fields":["name","scope","areaText","places","tags","audience","intro","actions","note","website","internalNote"]};
+const STORE_KEY = "mapping-editor-" + CONFIG.key;
+
+const $ = id => document.getElementById(id);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let data = loadSaved() || clone(BASELINE);
+let selected = 0;
+let query = "";
+
+/* --------------------------------------------------------- vocabularies */
+const uniq = a => [...new Set(a.filter(Boolean))];
+const listOf = key => uniq(BASELINE.organizations.flatMap(o =>
+  Array.isArray(o[key]) ? o[key] : (o[key] ? [o[key]] : [])));
+const byHe = (a, b) => a.localeCompare(b, "he");
+
+const VOCAB = {
+  relevance: listOf("relevance"),
+  typeGroup: listOf("typeGroup").sort(byHe),
+  scope: (CONFIG.facets.find(f => f.key === "scope") || {}).order || listOf("scope"),
+  places: listOf("places").sort(byHe),
+  tags: listOf("tags").sort(byHe),
+};
+
+/* השדות שכלי העריכה מציג נקבעים בהגדרת האתר */
+const SHOW = new Set(CONFIG.fields);
+const only = (key, html) => SHOW.has(key) ? html : "";
+
+/* -------------------------------------------------------------- storage */
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch {}
+}
+
+/* ------------------------------------------------------ change tracking */
+const baseById = new Map(BASELINE.organizations.map(o => [o.id, o]));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+function orgState(org) {
+  const base = baseById.get(org.id);
+  if (!base) return "added";
+  return same(base, org) ? "" : "changed";
+}
+function fieldChanged(org, field) {
+  const base = baseById.get(org.id);
+  return base ? !same(base[field], org[field]) : true;
+}
+function countChanges() {
+  const changed = data.organizations.filter(o => orgState(o)).length;
+  const removed = BASELINE.organizations.filter(
+    b => !data.organizations.some(o => o.id === b.id)).length;
+  return changed + removed;
+}
+
+/* ----------------------------------------------------------------- list */
+function visible() {
+  const q = query.trim();
+  return data.organizations
+    .map((o, i) => ({ o, i }))
+    .filter(({ o }) => !q || o.name.includes(q));
+}
+
+function renderList() {
+  $("list").innerHTML = visible().map(({ o, i }) => {
+    const st = orgState(o);
+    return `<button type="button" class="list-item ${st}" data-i="${i}"
+              aria-current="${i === selected}">
+      <span class="flag"></span><span class="nm">${esc(o.name)}</span>
+    </button>`;
+  }).join("") || `<div class="empty">אין תוצאות</div>`;
+
+  const n = countChanges();
+  $("dirty").innerHTML = n ? `<b>${n}</b> ארגונים שונו` : "אין שינויים";
+}
+
+/* ----------------------------------------------------------------- form */
+function field(label, org, key, html) {
+  const mark = fieldChanged(org, key) ? `<span class="mark" title="שונה">●</span>` : "";
+  return `<div class="f"><label>${label}${mark}</label>${html}</div>`;
+}
+
+function renderForm() {
+  const org = data.organizations[selected];
+  if (!org) { $("form").innerHTML = `<div class="empty">בחרו ארגון מהרשימה</div>`; return; }
+
+  const opts = (list, current) =>
+    list.map(v => `<option value="${esc(v)}"${v === current ? " selected" : ""}>${esc(v)}</option>`).join("");
+  const chips = (list, current, key) => `<div class="opts" data-multi="${key}">` + list.map(v =>
+    `<button type="button" class="opt" data-val="${esc(v)}"
+       aria-pressed="${current.includes(v)}">${esc(v)}</button>`).join("") + `</div>`;
+
+  $("form").innerHTML = `
+  <div class="form">
+    <div class="form-head">
+      <h2>${esc(org.name)}</h2>
+      <button class="btn-ghost" data-cmd="revert">שחזור למקור</button>
+      <button class="btn-ghost danger" data-cmd="delete">מחיקה</button>
+    </div>
+
+    ${field("שם הגוף", org, "name",
+      `<input type="text" data-k="name" value="${esc(org.name)}">`)}
+
+    <div class="grid2">
+      ${only("relevance", field("רלוונטיות", org, "relevance",
+        `<select data-k="relevance">${opts(VOCAB.relevance, org.relevance)}</select>`))}
+      ${only("typeGroup", field("משפחת הגוף", org, "typeGroup",
+        `<select data-k="typeGroup">${opts(VOCAB.typeGroup, org.typeGroup)}</select>`))}
+      ${only("type", field("סוג הגוף (טקסט חופשי)", org, "type",
+        `<input type="text" data-k="type" value="${esc(org.type || "")}">`))}
+      ${only("scope", field("היקף הפעילות", org, "scope",
+        `<select data-k="scope">${opts(VOCAB.scope, org.scope)}</select>`))}
+    </div>
+
+    ${only("areaText", field("מרחב פעילות (הטקסט שמוצג בכרטיס)", org, "areaText",
+      `<input type="text" data-k="areaText" value="${esc(org.areaText)}">`))}
+
+    ${only("places", field("יישובים לסינון", org, "places",
+      chips(VOCAB.places, org.places, "places")))}
+
+    ${only("tags", field("תגיות", org, "tags",
+      chips(VOCAB.tags, org.tags, "tags") +
+      `<div class="row-btns"><button class="btn-ghost" data-cmd="add-tag">תגית חדשה</button></div>`))}
+    ${only("audience", field("אוכלוסיית יעד", org, "audience",
+      `<textarea data-k="audience" rows="2">${esc(org.audience || "")}</textarea>`))}
+
+    ${only("intro", field("פסקת פתיחה", org, "intro",
+      `<textarea data-k="intro" rows="5">${esc(org.intro)}</textarea>`))}
+
+    ${!SHOW.has("actions") ? "" : `
+    <div class="f">
+      <label>פעולות ותוכניות${fieldChanged(org, "actions") ? `<span class="mark">●</span>` : ""}</label>
+      <div class="acts">${org.actions.map((a, j) => `
+        <div class="act">
+          <div class="act-top">
+            <span class="n">פעולה ${j + 1}</span>
+            <button class="icon-btn" data-move="${j}" data-dir="-1" title="הזזה למעלה">↑</button>
+            <button class="icon-btn" data-move="${j}" data-dir="1" title="הזזה למטה">↓</button>
+            <button class="icon-btn danger" data-del-act="${j}" title="מחיקה">✕</button>
+          </div>
+          <div class="f"><label>כותרת</label>
+            <input type="text" data-a="${j}" data-ak="title" value="${esc(a.title)}"></div>
+          <div class="f"><label>תיאור</label>
+            <textarea data-a="${j}" data-ak="body" rows="3">${esc(a.body)}</textarea></div>
+          <div class="f"><label>שותפים</label>
+            <input type="text" data-a="${j}" data-ak="partners" value="${esc(a.partners.join(", "))}">
+            <span class="help">מופרדים בפסיק.</span></div>
+        </div>`).join("")}
+      </div>
+      <div class="row-btns"><button class="btn-ghost" data-cmd="add-act">הוספת פעולה</button></div>
+    </div>`}
+
+    ${only("note", field("הערה", org, "note",
+      `<textarea data-k="note" rows="2">${esc(org.note)}</textarea>`))}
+    ${only("website", field("אתר הארגון", org, "website",
+      `<input type="url" data-k="website" value="${esc(org.website || "")}" dir="ltr">`))}
+    ${only("internalNote", field("הערה פנימית", org, "internalNote",
+      `<textarea data-k="internalNote" rows="2">${esc(org.internalNote || "")}</textarea>`
+      + `<span class="help">נשמרת בקובץ ואינה מוצגת בדף הפומבי.</span>`))}
+  </div>`;
+}
+
+function render() { renderList(); renderForm(); }
+
+/* -------------------------------------------------------------- editing */
+function update(fn) {
+  fn(data.organizations[selected]);
+  save();
+  render();
+}
+
+$("list").addEventListener("click", e => {
+  const btn = e.target.closest(".list-item");
+  if (btn) { selected = +btn.dataset.i; render(); }
+});
+$("q").addEventListener("input", e => { query = e.target.value; renderList(); });
+
+/* מסמן שדה שהשתנה ומרענן את מונה השינויים בלי לבנות מחדש את הטופס,
+   כדי שהמיקוד בשדה שנערך לא ילך לאיבוד באמצע ההקלדה. */
+function refreshStatus(input, key) {
+  renderList();
+  const wrap = input.closest(".f");
+  const label = wrap && wrap.querySelector(":scope > label");
+  if (!label) return;
+  const has = label.querySelector(".mark");
+  const changed = fieldChanged(data.organizations[selected], key);
+  if (changed && !has) label.insertAdjacentHTML("beforeend", '<span class="mark" title="שונה">●</span>');
+  if (!changed && has) has.remove();
+}
+
+$("form").addEventListener("input", e => {
+  const org = data.organizations[selected];
+  const t = e.target;
+  if (t.dataset.k) {
+    org[t.dataset.k] = t.value;
+    save();
+    refreshStatus(t, t.dataset.k);
+    return;
+  }
+  if (t.dataset.a !== undefined) {
+    const act = org.actions[+t.dataset.a];
+    act[t.dataset.ak] = t.dataset.ak === "partners"
+      ? t.value.split(",").map(s => s.trim()).filter(Boolean)
+      : t.value;
+    save();
+    renderList();
+  }
+});
+
+$("form").addEventListener("click", e => {
+  const org = data.organizations[selected];
+
+  const opt = e.target.closest(".opt");
+  if (opt) {
+    const key = opt.closest("[data-multi]").dataset.multi;
+    const v = opt.dataset.val;
+    const set = new Set(org[key]);
+    set.has(v) ? set.delete(v) : set.add(v);
+    return update(o => { o[key] = [...set]; });
+  }
+
+  const mv = e.target.closest("[data-move]");
+  if (mv) {
+    const j = +mv.dataset.move, to = j + +mv.dataset.dir;
+    if (to < 0 || to >= org.actions.length) return;
+    return update(o => { const [a] = o.actions.splice(j, 1); o.actions.splice(to, 0, a); });
+  }
+
+  const da = e.target.closest("[data-del-act]");
+  if (da) {
+    if (!confirm("למחוק את הפעולה?")) return;
+    return update(o => o.actions.splice(+da.dataset.delAct, 1));
+  }
+
+  const cmd = e.target.closest("[data-cmd]")?.dataset.cmd;
+  if (cmd === "add-act")
+    return update(o => o.actions.push({ title:"", body:"", partners:[] }));
+  if (cmd === "add-tag") {
+    const t = prompt("שם התגית החדשה:");
+    if (!t || !t.trim()) return;
+    const tag = t.trim();
+    if (!VOCAB.tags.includes(tag)) VOCAB.tags.push(tag), VOCAB.tags.sort((a,b)=>a.localeCompare(b,"he"));
+    return update(o => { if (!o.tags.includes(tag)) o.tags.push(tag); });
+  }
+  if (cmd === "revert") {
+    const base = baseById.get(org.id);
+    if (!base) return toast("ארגון חדש — אין גרסה מקורית לשחזר אליה");
+    if (!confirm("לשחזר את הארגון לגרסה המקורית?")) return;
+    data.organizations[selected] = clone(base);
+    save(); render();
+    return toast("שוחזר");
+  }
+  if (cmd === "delete") {
+    if (!confirm(`למחוק את "${org.name}" מהמיפוי?`)) return;
+    data.organizations.splice(selected, 1);
+    selected = Math.max(0, selected - 1);
+    save(); render();
+    return toast("נמחק");
+  }
+});
+
+$("btnAdd").addEventListener("click", () => {
+  const name = prompt("שם הארגון החדש:");
+  if (!name || !name.trim()) return;
+  const blank = {
+    id: "new-" + Date.now(), name: name.trim(), aliases: [],
+    areaText: "", places: [], tags: [], intro: "", actions: [],
+    partners: [], note: "", website: "",
+  };
+  if (SHOW.has("relevance")) blank.relevance = VOCAB.relevance[0];
+  if (SHOW.has("typeGroup")) blank.typeGroup = VOCAB.typeGroup[0];
+  if (SHOW.has("type"))      blank.type = "";
+  if (SHOW.has("scope"))     blank.scope = VOCAB.scope[0];
+  if (SHOW.has("audience"))  blank.audience = "";
+  data.organizations.unshift(blank);
+  selected = 0; query = ""; $("q").value = "";
+  save(); render();
+});
+
+$("btnReset").addEventListener("click", () => {
+  if (!confirm("לבטל את כל השינויים ולחזור לגרסה שהדף נבנה ממנה?")) return;
+  data = clone(BASELINE); selected = 0;
+  try { localStorage.removeItem(STORE_KEY); } catch {}
+  render();
+  toast("הכול אופס");
+});
+
+/* --------------------------------------------------------------- export */
+function payloadForExport() {
+  const out = clone(data);
+  out.organizations.forEach(o => {
+    o.partners = [...new Set(o.actions.flatMap(a => a.partners))].sort((a,b)=>a.localeCompare(b,"he"));
+  });
+  return out;
+}
+
+function summary() {
+  const lines = [`שינויים במיפוי — ${new Date().toLocaleDateString("he-IL")}`, ""];
+  const LABEL = {
+    name:"שם", relevance:"רלוונטיות", typeGroup:"משפחת הגוף", type:"סוג הגוף",
+    scope:"היקף הפעילות", areaText:"מרחב פעילות", places:"יישובים", tags:"תגיות",
+    audience:"אוכלוסיית יעד", intro:"פסקת פתיחה", note:"הערה",
+    internalNote:"הערה פנימית", website:"אתר", actions:"פעולות",
+  };
+  let n = 0;
+  for (const org of data.organizations) {
+    const base = baseById.get(org.id);
+    if (!base) { lines.push(`+ ארגון חדש: ${org.name}`, ""); n++; continue; }
+    const diffs = Object.keys(LABEL).filter(k => !same(base[k], org[k]));
+    if (!diffs.length) continue;
+    n++;
+    lines.push(`■ ${org.name}`);
+    for (const k of diffs) {
+      if (k === "actions") { lines.push(`   פעולות: ${base.actions.length} ← ${org.actions.length}, תוכן עודכן`); continue; }
+      const b = Array.isArray(base[k]) ? base[k].join(", ") : base[k];
+      const a = Array.isArray(org[k]) ? org[k].join(", ") : org[k];
+      lines.push(`   ${LABEL[k]}:`, `      לפני: ${b || "(ריק)"}`, `      אחרי: ${a || "(ריק)"}`);
+    }
+    lines.push("");
+  }
+  for (const b of BASELINE.organizations) {
+    if (!data.organizations.some(o => o.id === b.id)) { lines.push(`− נמחק: ${b.name}`, ""); n++; }
+  }
+  if (!n) lines.push("לא נמצאו שינויים.");
+  return lines.join("\n");
+}
+
+let dlgFile = "";
+function openDialog(title, text, filename, note) {
+  $("dlgTitle").textContent = title;
+  $("dlgText").value = text;
+  $("dlgNote").innerHTML = note;
+  dlgFile = filename;
+  $("dlg").showModal();
+}
+$("dlgClose").addEventListener("click", () => $("dlg").close());
+$("dlgCopy").addEventListener("click", async () => {
+  const el = $("dlgText");
+  try { await navigator.clipboard.writeText(el.value); }
+  catch { el.select(); document.execCommand("copy"); }
+  toast("הועתק ללוח");
+});
+$("dlgDownload").addEventListener("click", () => {
+  const blob = new Blob([$("dlgText").value], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = dlgFile;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+$("btnExport").addEventListener("click", () => openDialog(
+  "ייצוא הנתונים",
+  JSON.stringify(payloadForExport(), null, 1),
+  "organizations.json",
+  `<b>זה הקובץ שמעדכן את הדף.</b>
+   <ol>
+     <li>לוחצים <b>הורדה</b> ומקבלים <code>organizations.json</code>.</li>
+     <li>במאגר ב-GitHub נכנסים לתיקייה <code>data</code>.</li>
+     <li>מעלים את הקובץ במקום הקובץ הקיים ושומרים (Commit).</li>
+     <li>הדף נבנה מחדש מעצמו תוך כדקה.</li>
+   </ol>`));
+
+$("btnSummary").addEventListener("click", () => openDialog(
+  "סיכום השינויים",
+  summary(),
+  "changes.txt",
+  "רשימה לקריאה בלבד, נוחה לבדיקה לפני העלאה. כדי לעדכן את הדף יש להשתמש בכפתור <b>ייצוא</b>."));
+
+/* ----------------------------------------------------------------- load */
+$("btnLoad").addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!Array.isArray(parsed.organizations)) throw new Error("no organizations array");
+    data = parsed; selected = 0;
+    save(); render();
+    toast(`נטענו ${parsed.organizations.length} ארגונים`);
+  } catch {
+    toast("הקובץ אינו קובץ מיפוי תקין");
+  }
+  e.target.value = "";
+});
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("on"), 2400);
+}
+
+addEventListener("beforeunload", e => {
+  if (countChanges()) { e.preventDefault(); e.returnValue = ""; }
+});
+
+render();
+</script>
+</body>
+</html>
