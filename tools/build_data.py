@@ -12,7 +12,12 @@
 
 הפלט:
     data/organizations.json
+
+שימו לב: מרגע שעורכים את הנתונים דרך editor.html, הקובץ data/organizations.json
+הוא מקור האמת. הרצה חוזרת של הסקריפט הזה תדרוס עריכות כאלה, ולכן היא דורשת
+--force כשהקובץ כבר קיים.
 """
+import argparse
 import json
 import os
 import re
@@ -240,6 +245,17 @@ def build_record(row, is_addition=False):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="ייבוא המיפוי מקובץ האקסל")
+    parser.add_argument("--force", action="store_true",
+                        help="דריסת data/organizations.json קיים")
+    args = parser.parse_args()
+
+    if os.path.exists(OUT) and not args.force:
+        print(f"{os.path.relpath(OUT, ROOT)} כבר קיים ולא נדרס.")
+        print("אם ערכתם דרך editor.html, ההרצה הזאת תמחק את העריכות.")
+        print("להרצה בכל זאת:  python3 tools/build_data.py --force")
+        raise SystemExit(1)
+
     wb = openpyxl.load_workbook(XLSX, data_only=True)
     ws = wb["מיפוי מאוחד"]
     rows = list(ws.iter_rows(values_only=True))

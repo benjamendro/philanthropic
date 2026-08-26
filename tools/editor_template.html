@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>עריכת מיפוי הארגונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ink:#1B2A4E; --body:#3A465F; --muted:#6B7690;
+  --ground:#EEF1F6; --surface:#FFFFFF; --surface-2:#F7F9FC;
+  --line:#D3DBE7; --line-soft:#E8EDF4;
+  --core:#0F7DA8; --core-soft:#E6F2F8;
+  --edit:#8A5A00; --edit-soft:#FDF3E0;
+  --danger:#A03030;
+  --sans:"Assistant","Segoe UI","Arial Hebrew",Arial,sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:var(--sans); font-size:15px; line-height:1.6;
+}
+h1,h2,h3 { margin:0; color:var(--ink); }
+button, input, select, textarea { font-family:inherit; font-size:inherit; }
+:focus-visible { outline:2px solid var(--core); outline-offset:2px; border-radius:4px; }
+
+/* ---------------------------------------------------------------- topbar */
+.topbar {
+  position:sticky; top:0; z-index:30;
+  background:var(--ink); color:#fff;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:11px 18px;
+}
+.topbar h1 { color:#fff; font-size:1rem; font-weight:700; }
+.mode {
+  font-size:.72rem; font-weight:700; letter-spacing:.04em;
+  background:#F5C45E; color:#3A2A00; border-radius:100px; padding:2px 10px;
+}
+.topbar .spacer { flex:1; }
+.dirty { font-size:.83rem; color:#C9D6E8; font-variant-numeric:tabular-nums; }
+.dirty b { color:#F5C45E; }
+
+.btn {
+  border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.09);
+  color:#fff; border-radius:7px; padding:6px 13px;
+  font-size:.85rem; font-weight:600; cursor:pointer;
+}
+.btn:hover { background:rgba(255,255,255,.18); }
+.btn-primary { background:#F5C45E; border-color:#F5C45E; color:#3A2A00; }
+.btn-primary:hover { background:#FFD277; }
+
+/* ------------------------------------------------------------------ hint */
+.hint-bar {
+  background:var(--edit-soft); border-bottom:1px solid #EBDCBE;
+  color:var(--edit); font-size:.84rem; padding:9px 18px;
+}
+.hint-bar code { background:#fff; border:1px solid #EBDCBE; border-radius:4px; padding:1px 5px; }
+
+/* ---------------------------------------------------------------- layout */
+.wrap {
+  display:grid; grid-template-columns:300px 1fr; gap:16px;
+  padding:16px; align-items:start; max-width:1400px; margin:0 auto;
+}
+@media (max-width:900px) { .wrap { grid-template-columns:1fr; } }
+
+.panel {
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:11px; overflow:hidden;
+}
+
+/* -------------------------------------------------------------- org list */
+.list-head { padding:11px 13px; border-bottom:1px solid var(--line-soft); }
+.list-head input {
+  width:100%; padding:7px 10px; border:1px solid var(--line);
+  border-radius:7px; background:var(--surface-2); color:var(--ink);
+}
+.list { max-height:calc(100vh - 220px); overflow-y:auto; }
+.list-item {
+  display:flex; align-items:center; gap:8px; width:100%;
+  padding:8px 13px; border:0; border-bottom:1px solid var(--line-soft);
+  background:none; text-align:start; cursor:pointer; color:var(--body);
+  font-size:.87rem; line-height:1.35;
+}
+.list-item:hover { background:var(--surface-2); }
+.list-item[aria-current="true"] { background:var(--core-soft); color:var(--ink); font-weight:700; }
+.list-item .flag { flex:0 0 6px; height:6px; border-radius:50%; background:transparent; }
+.list-item.changed .flag { background:#D9A227; }
+.list-item.added   .flag { background:#2E8B57; }
+.list-item .nm { flex:1; min-width:0; }
+
+/* ------------------------------------------------------------------ form */
+.form { padding:18px 20px 26px; }
+.form-head {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding-bottom:13px; margin-bottom:16px; border-bottom:1px solid var(--line-soft);
+}
+.form-head h2 { font-size:1.05rem; flex:1; min-width:0; }
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:640px) { .grid2 { grid-template-columns:1fr; } }
+
+.f { display:flex; flex-direction:column; gap:5px; margin-bottom:15px; }
+.f > label { font-size:.78rem; font-weight:700; color:var(--muted); }
+.f > label .mark { color:#D9A227; margin-inline-start:5px; }
+.f input[type=text], .f input[type=url], .f select, .f textarea {
+  width:100%; padding:8px 11px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:7px;
+}
+.f textarea { resize:vertical; min-height:74px; line-height:1.65; }
+.f .help { font-size:.75rem; color:var(--muted); }
+
+.opts { display:flex; flex-wrap:wrap; gap:6px; }
+.opt {
+  border:1px solid var(--line); background:var(--surface-2); color:var(--body);
+  border-radius:100px; padding:3px 11px; font-size:.8rem; cursor:pointer;
+}
+.opt:hover { border-color:var(--core); color:var(--core); }
+.opt[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:#fff; }
+
+/* --------------------------------------------------------------- actions */
+.acts { display:flex; flex-direction:column; gap:12px; }
+.act {
+  border:1px solid var(--line); border-radius:9px;
+  padding:12px 14px; background:var(--surface-2);
+}
+.act-top { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.act-top .n { font-size:.75rem; font-weight:700; color:var(--muted); flex:1; }
+.icon-btn {
+  border:1px solid var(--line); background:#fff; color:var(--muted);
+  border-radius:6px; width:26px; height:26px; cursor:pointer; line-height:1;
+}
+.icon-btn:hover { border-color:var(--core); color:var(--core); }
+.icon-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+
+.row-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.btn-ghost {
+  border:1px solid var(--line); background:#fff; color:var(--core);
+  border-radius:7px; padding:6px 13px; font-size:.83rem; font-weight:600; cursor:pointer;
+}
+.btn-ghost:hover { border-color:var(--core); background:var(--core-soft); }
+.btn-ghost.danger { color:var(--danger); }
+.btn-ghost.danger:hover { border-color:var(--danger); background:#FBEDED; }
+
+.empty { padding:60px 20px; text-align:center; color:var(--muted); }
+dialog {
+  border:1px solid var(--line); border-radius:12px; padding:0;
+  max-width:min(760px,92vw); box-shadow:0 12px 40px rgba(27,42,78,.22);
+}
+dialog::backdrop { background:rgba(27,42,78,.45); }
+.dlg-head {
+  padding:14px 18px; border-bottom:1px solid var(--line-soft);
+  display:flex; align-items:center; gap:12px;
+}
+.dlg-head h3 { flex:1; font-size:1rem; }
+.dlg-body { padding:16px 18px; max-height:60vh; overflow:auto; }
+.dlg-body textarea {
+  width:100%; min-height:320px; font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.8rem; direction:ltr; text-align:left;
+  border:1px solid var(--line); border-radius:8px; padding:11px;
+}
+.dlg-foot { padding:12px 18px; border-top:1px solid var(--line-soft); display:flex; gap:8px; }
+.dlg-foot .btn { background:var(--ink); border-color:var(--ink); }
+.toast {
+  position:fixed; inset-block-end:18px; inset-inline-start:18px; z-index:60;
+  background:var(--ink); color:#fff; border-radius:8px; padding:9px 16px;
+  font-size:.85rem; opacity:0; transform:translateY(8px);
+  transition:opacity .2s, transform .2s; pointer-events:none;
+}
+.toast.on { opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>מיפוי הארגונים</h1>
+  <span class="mode">מצב עריכה</span>
+  <span class="spacer"></span>
+  <span class="dirty" id="dirty"></span>
+  <button class="btn" id="btnLoad">טעינת קובץ</button>
+  <button class="btn" id="btnSummary">סיכום שינויים</button>
+  <button class="btn" id="btnReset">איפוס</button>
+  <button class="btn btn-primary" id="btnExport">ייצוא</button>
+  <input type="file" id="fileInput" accept="application/json" hidden>
+</header>
+
+<div class="hint-bar">
+  העריכה נשמרת בדפדפן הזה בלבד ואינה משנה את הדף המפורסם. בסיום לוחצים
+  <b>ייצוא</b>, מקבלים <code>organizations.json</code>, ומחליפים בו את הקובץ
+  שבתיקיית <code>data/</code> במאגר — הדף נבנה מחדש מעצמו.
+</div>
+
+<div class="wrap">
+  <aside class="panel">
+    <div class="list-head">
+      <input type="search" id="q" placeholder="חיפוש ארגון">
+    </div>
+    <div class="list" id="list"></div>
+    <div style="padding:11px 13px; border-top:1px solid var(--line-soft)">
+      <button class="btn-ghost" id="btnAdd" style="width:100%">הוספת ארגון</button>
+    </div>
+  </aside>
+
+  <main class="panel">
+    <div id="form"></div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg-head">
+    <h3 id="dlgTitle"></h3>
+    <button class="icon-btn" id="dlgClose" aria-label="סגירה">✕</button>
+  </div>
+  <div class="dlg-body"><textarea id="dlgText" readonly></textarea></div>
+  <div class="dlg-foot">
+    <button class="btn" id="dlgCopy">העתקה</button>
+    <button class="btn" id="dlgDownload">הורדה</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BASELINE = /*__DATA__*/{};
+const STORE_KEY = "galilee-mapping-editor";
+
+const $ = id => document.getElementById(id);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let data = loadSaved() || clone(BASELINE);
+let selected = 0;
+let query = "";
+
+/* --------------------------------------------------------- vocabularies */
+const uniq = a => [...new Set(a.filter(Boolean))];
+const VOCAB = {
+  relevance: uniq(BASELINE.organizations.map(o => o.relevance)),
+  typeGroup: uniq(BASELINE.organizations.map(o => o.typeGroup)).sort((a,b)=>a.localeCompare(b,"he")),
+  scope: ["גליל מזרחי", "צפון והגליל", "ארצי"],
+  places: uniq(BASELINE.organizations.flatMap(o => o.places)).sort((a,b)=>a.localeCompare(b,"he")),
+  tags: uniq(BASELINE.organizations.flatMap(o => o.tags)).sort((a,b)=>a.localeCompare(b,"he")),
+};
+
+/* -------------------------------------------------------------- storage */
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch {}
+}
+
+/* ------------------------------------------------------ change tracking */
+const baseById = new Map(BASELINE.organizations.map(o => [o.id, o]));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+function orgState(org) {
+  const base = baseById.get(org.id);
+  if (!base) return "added";
+  return same(base, org) ? "" : "changed";
+}
+function fieldChanged(org, field) {
+  const base = baseById.get(org.id);
+  return base ? !same(base[field], org[field]) : true;
+}
+function countChanges() {
+  const changed = data.organizations.filter(o => orgState(o)).length;
+  const removed = BASELINE.organizations.filter(
+    b => !data.organizations.some(o => o.id === b.id)).length;
+  return changed + removed;
+}
+
+/* ----------------------------------------------------------------- list */
+function visible() {
+  const q = query.trim();
+  return data.organizations
+    .map((o, i) => ({ o, i }))
+    .filter(({ o }) => !q || o.name.includes(q));
+}
+
+function renderList() {
+  $("list").innerHTML = visible().map(({ o, i }) => {
+    const st = orgState(o);
+    return `<button type="button" class="list-item ${st}" data-i="${i}"
+              aria-current="${i === selected}">
+      <span class="flag"></span><span class="nm">${esc(o.name)}</span>
+    </button>`;
+  }).join("") || `<div class="empty">אין תוצאות</div>`;
+
+  const n = countChanges();
+  $("dirty").innerHTML = n ? `<b>${n}</b> ארגונים שונו` : "אין שינויים";
+}
+
+/* ----------------------------------------------------------------- form */
+function field(label, org, key, html) {
+  const mark = fieldChanged(org, key) ? `<span class="mark" title="שונה">●</span>` : "";
+  return `<div class="f"><label>${label}${mark}</label>${html}</div>`;
+}
+
+function renderForm() {
+  const org = data.organizations[selected];
+  if (!org) { $("form").innerHTML = `<div class="empty">בחרו ארגון מהרשימה</div>`; return; }
+
+  const opts = (list, current) =>
+    list.map(v => `<option value="${esc(v)}"${v === current ? " selected" : ""}>${esc(v)}</option>`).join("");
+  const chips = (list, current, key) => `<div class="opts" data-multi="${key}">` + list.map(v =>
+    `<button type="button" class="opt" data-val="${esc(v)}"
+       aria-pressed="${current.includes(v)}">${esc(v)}</button>`).join("") + `</div>`;
+
+  $("form").innerHTML = `
+  <div class="form">
+    <div class="form-head">
+      <h2>${esc(org.name)}</h2>
+      <button class="btn-ghost" data-cmd="revert">שחזור למקור</button>
+      <button class="btn-ghost danger" data-cmd="delete">מחיקה</button>
+    </div>
+
+    ${field("שם הגוף", org, "name",
+      `<input type="text" data-k="name" value="${esc(org.name)}">`)}
+
+    <div class="grid2">
+      ${field("רלוונטיות", org, "relevance",
+        `<select data-k="relevance">${opts(VOCAB.relevance, org.relevance)}</select>`)}
+      ${field("משפחת הגוף", org, "typeGroup",
+        `<select data-k="typeGroup">${opts(VOCAB.typeGroup, org.typeGroup)}</select>`)}
+      ${field("סוג הגוף (טקסט חופשי)", org, "type",
+        `<input type="text" data-k="type" value="${esc(org.type)}">`)}
+      ${field("היקף הפעילות", org, "scope",
+        `<select data-k="scope">${opts(VOCAB.scope, org.scope)}</select>`)}
+    </div>
+
+    ${field("מרחב פעילות (הטקסט שמוצג בכרטיס)", org, "areaText",
+      `<input type="text" data-k="areaText" value="${esc(org.areaText)}">`)}
+
+    ${field("יישובים לסינון", org, "places",
+      chips(VOCAB.places, org.places, "places") +
+      `<span class="help">רק יישובים שבתוך הגליל המזרחי.</span>`)}
+
+    ${field("תגיות", org, "tags",
+      chips(VOCAB.tags, org.tags, "tags") +
+      `<div class="row-btns"><button class="btn-ghost" data-cmd="add-tag">תגית חדשה</button></div>`)}
+
+    ${field("פסקת פתיחה", org, "intro",
+      `<textarea data-k="intro" rows="5">${esc(org.intro)}</textarea>`)}
+
+    <div class="f">
+      <label>פעולות ותוכניות${fieldChanged(org, "actions") ? `<span class="mark">●</span>` : ""}</label>
+      <div class="acts">${org.actions.map((a, j) => `
+        <div class="act">
+          <div class="act-top">
+            <span class="n">פעולה ${j + 1}</span>
+            <button class="icon-btn" data-move="${j}" data-dir="-1" title="הזזה למעלה">↑</button>
+            <button class="icon-btn" data-move="${j}" data-dir="1" title="הזזה למטה">↓</button>
+            <button class="icon-btn danger" data-del-act="${j}" title="מחיקה">✕</button>
+          </div>
+          <div class="f"><label>כותרת</label>
+            <input type="text" data-a="${j}" data-ak="title" value="${esc(a.title)}"></div>
+          <div class="f"><label>תיאור</label>
+            <textarea data-a="${j}" data-ak="body" rows="3">${esc(a.body)}</textarea></div>
+          <div class="f"><label>שותפים</label>
+            <input type="text" data-a="${j}" data-ak="partners" value="${esc(a.partners.join(", "))}">
+            <span class="help">מופרדים בפסיק.</span></div>
+        </div>`).join("")}
+      </div>
+      <div class="row-btns"><button class="btn-ghost" data-cmd="add-act">הוספת פעולה</button></div>
+    </div>
+
+    ${field("הערה", org, "note",
+      `<textarea data-k="note" rows="2">${esc(org.note)}</textarea>`)}
+    ${field("אתר הארגון", org, "website",
+      `<input type="url" data-k="website" value="${esc(org.website)}" dir="ltr">`)}
+  </div>`;
+}
+
+function render() { renderList(); renderForm(); }
+
+/* -------------------------------------------------------------- editing */
+function update(fn) {
+  fn(data.organizations[selected]);
+  save();
+  render();
+}
+
+$("list").addEventListener("click", e => {
+  const btn = e.target.closest(".list-item");
+  if (btn) { selected = +btn.dataset.i; render(); }
+});
+$("q").addEventListener("input", e => { query = e.target.value; renderList(); });
+
+/* מסמן שדה שהשתנה ומרענן את מונה השינויים בלי לבנות מחדש את הטופס,
+   כדי שהמיקוד בשדה שנערך לא ילך לאיבוד באמצע ההקלדה. */
+function refreshStatus(input, key) {
+  renderList();
+  const wrap = input.closest(".f");
+  const label = wrap && wrap.querySelector(":scope > label");
+  if (!label) return;
+  const has = label.querySelector(".mark");
+  const changed = fieldChanged(data.organizations[selected], key);
+  if (changed && !has) label.insertAdjacentHTML("beforeend", '<span class="mark" title="שונה">●</span>');
+  if (!changed && has) has.remove();
+}
+
+$("form").addEventListener("input", e => {
+  const org = data.organizations[selected];
+  const t = e.target;
+  if (t.dataset.k) {
+    org[t.dataset.k] = t.value;
+    save();
+    refreshStatus(t, t.dataset.k);
+    return;
+  }
+  if (t.dataset.a !== undefined) {
+    const act = org.actions[+t.dataset.a];
+    act[t.dataset.ak] = t.dataset.ak === "partners"
+      ? t.value.split(",").map(s => s.trim()).filter(Boolean)
+      : t.value;
+    save();
+    renderList();
+  }
+});
+
+$("form").addEventListener("click", e => {
+  const org = data.organizations[selected];
+
+  const opt = e.target.closest(".opt");
+  if (opt) {
+    const key = opt.closest("[data-multi]").dataset.multi;
+    const v = opt.dataset.val;
+    const set = new Set(org[key]);
+    set.has(v) ? set.delete(v) : set.add(v);
+    return update(o => { o[key] = [...set]; });
+  }
+
+  const mv = e.target.closest("[data-move]");
+  if (mv) {
+    const j = +mv.dataset.move, to = j + +mv.dataset.dir;
+    if (to < 0 || to >= org.actions.length) return;
+    return update(o => { const [a] = o.actions.splice(j, 1); o.actions.splice(to, 0, a); });
+  }
+
+  const da = e.target.closest("[data-del-act]");
+  if (da) {
+    if (!confirm("למחוק את הפעולה?")) return;
+    return update(o => o.actions.splice(+da.dataset.delAct, 1));
+  }
+
+  const cmd = e.target.closest("[data-cmd]")?.dataset.cmd;
+  if (cmd === "add-act")
+    return update(o => o.actions.push({ title:"", body:"", partners:[] }));
+  if (cmd === "add-tag") {
+    const t = prompt("שם התגית החדשה:");
+    if (!t || !t.trim()) return;
+    const tag = t.trim();
+    if (!VOCAB.tags.includes(tag)) VOCAB.tags.push(tag), VOCAB.tags.sort((a,b)=>a.localeCompare(b,"he"));
+    return update(o => { if (!o.tags.includes(tag)) o.tags.push(tag); });
+  }
+  if (cmd === "revert") {
+    const base = baseById.get(org.id);
+    if (!base) return toast("ארגון חדש — אין גרסה מקורית לשחזר אליה");
+    if (!confirm("לשחזר את הארגון לגרסה המקורית?")) return;
+    data.organizations[selected] = clone(base);
+    save(); render();
+    return toast("שוחזר");
+  }
+  if (cmd === "delete") {
+    if (!confirm(`למחוק את "${org.name}" מהמיפוי?`)) return;
+    data.organizations.splice(selected, 1);
+    selected = Math.max(0, selected - 1);
+    save(); render();
+    return toast("נמחק");
+  }
+});
+
+$("btnAdd").addEventListener("click", () => {
+  const name = prompt("שם הארגון החדש:");
+  if (!name || !name.trim()) return;
+  data.organizations.unshift({
+    id: "new-" + Date.now(), name: name.trim(), aliases: [],
+    type: "", typeGroup: VOCAB.typeGroup[0], relevance: VOCAB.relevance[0],
+    areaText: "", scope: "גליל מזרחי", places: [], tags: [],
+    intro: "", actions: [], partners: [], note: "", website: "",
+  });
+  selected = 0; query = ""; $("q").value = "";
+  save(); render();
+});
+
+$("btnReset").addEventListener("click", () => {
+  if (!confirm("לבטל את כל השינויים ולחזור לגרסה שהדף נבנה ממנה?")) return;
+  data = clone(BASELINE); selected = 0;
+  try { localStorage.removeItem(STORE_KEY); } catch {}
+  render();
+  toast("הכול אופס");
+});
+
+/* --------------------------------------------------------------- export */
+function payloadForExport() {
+  const out = clone(data);
+  out.organizations.forEach(o => {
+    o.partners = [...new Set(o.actions.flatMap(a => a.partners))].sort((a,b)=>a.localeCompare(b,"he"));
+  });
+  return out;
+}
+
+function summary() {
+  const lines = [`שינויים במיפוי — ${new Date().toLocaleDateString("he-IL")}`, ""];
+  const LABEL = {
+    name:"שם", relevance:"רלוונטיות", typeGroup:"משפחת הגוף", type:"סוג הגוף",
+    scope:"היקף הפעילות", areaText:"מרחב פעילות", places:"יישובים", tags:"תגיות",
+    intro:"פסקת פתיחה", note:"הערה", website:"אתר", actions:"פעולות",
+  };
+  let n = 0;
+  for (const org of data.organizations) {
+    const base = baseById.get(org.id);
+    if (!base) { lines.push(`+ ארגון חדש: ${org.name}`, ""); n++; continue; }
+    const diffs = Object.keys(LABEL).filter(k => !same(base[k], org[k]));
+    if (!diffs.length) continue;
+    n++;
+    lines.push(`■ ${org.name}`);
+    for (const k of diffs) {
+      if (k === "actions") { lines.push(`   פעולות: ${base.actions.length} ← ${org.actions.length}, תוכן עודכן`); continue; }
+      const b = Array.isArray(base[k]) ? base[k].join(", ") : base[k];
+      const a = Array.isArray(org[k]) ? org[k].join(", ") : org[k];
+      lines.push(`   ${LABEL[k]}:`, `      לפני: ${b || "(ריק)"}`, `      אחרי: ${a || "(ריק)"}`);
+    }
+    lines.push("");
+  }
+  for (const b of BASELINE.organizations) {
+    if (!data.organizations.some(o => o.id === b.id)) { lines.push(`− נמחק: ${b.name}`, ""); n++; }
+  }
+  if (!n) lines.push("לא נמצאו שינויים.");
+  return lines.join("\n");
+}
+
+let dlgFile = "";
+function openDialog(title, text, filename) {
+  $("dlgTitle").textContent = title;
+  $("dlgText").value = text;
+  dlgFile = filename;
+  $("dlg").showModal();
+}
+$("dlgClose").addEventListener("click", () => $("dlg").close());
+$("dlgCopy").addEventListener("click", async () => {
+  const el = $("dlgText");
+  try { await navigator.clipboard.writeText(el.value); }
+  catch { el.select(); document.execCommand("copy"); }
+  toast("הועתק ללוח");
+});
+$("dlgDownload").addEventListener("click", () => {
+  const blob = new Blob([$("dlgText").value], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = dlgFile;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+$("btnExport").addEventListener("click", () =>
+  openDialog("organizations.json", JSON.stringify(payloadForExport(), null, 1), "organizations.json"));
+$("btnSummary").addEventListener("click", () =>
+  openDialog("סיכום השינויים", summary(), "changes.txt"));
+
+/* ----------------------------------------------------------------- load */
+$("btnLoad").addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!Array.isArray(parsed.organizations)) throw new Error("no organizations array");
+    data = parsed; selected = 0;
+    save(); render();
+    toast(`נטענו ${parsed.organizations.length} ארגונים`);
+  } catch {
+    toast("הקובץ אינו קובץ מיפוי תקין");
+  }
+  e.target.value = "";
+});
+
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("on"), 2400);
+}
+
+addEventListener("beforeunload", e => {
+  if (countChanges()) { e.preventDefault(); e.returnValue = ""; }
+});
+
+render();
+</script>
+</body>
+</html>
