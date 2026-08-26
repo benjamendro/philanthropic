@@ -155,6 +155,13 @@ dialog::backdrop { background:rgba(27,42,78,.45); }
 }
 .dlg-head h3 { flex:1; font-size:1rem; }
 .dlg-body { padding:16px 18px; max-height:60vh; overflow:auto; }
+.dlg-note {
+  background:var(--edit-soft); border:1px solid #EBDCBE; border-radius:8px;
+  padding:11px 14px; margin-bottom:13px; font-size:.86rem; color:var(--edit);
+}
+.dlg-note ol { margin:6px 0 0; padding-inline-start:20px; }
+.dlg-note li { margin:2px 0; }
+.dlg-note code { background:#fff; border:1px solid #EBDCBE; border-radius:4px; padding:1px 5px; }
 .dlg-body textarea {
   width:100%; min-height:320px; font-family:ui-monospace,Menlo,Consolas,monospace;
   font-size:.8rem; direction:ltr; text-align:left;
@@ -212,7 +219,10 @@ dialog::backdrop { background:rgba(27,42,78,.45); }
     <h3 id="dlgTitle"></h3>
     <button class="icon-btn" id="dlgClose" aria-label="סגירה">✕</button>
   </div>
-  <div class="dlg-body"><textarea id="dlgText" readonly></textarea></div>
+  <div class="dlg-body">
+    <div class="dlg-note" id="dlgNote"></div>
+    <textarea id="dlgText" readonly></textarea>
+  </div>
   <div class="dlg-foot">
     <button class="btn" id="dlgCopy">העתקה</button>
     <button class="btn" id="dlgDownload">הורדה</button>
@@ -374,6 +384,9 @@ function renderForm() {
       `<textarea data-k="note" rows="2">${esc(org.note)}</textarea>`)}
     ${field("אתר הארגון", org, "website",
       `<input type="url" data-k="website" value="${esc(org.website)}" dir="ltr">`)}
+    ${field("הערה פנימית", org, "internalNote",
+      `<textarea data-k="internalNote" rows="2">${esc(org.internalNote || "")}</textarea>`
+      + `<span class="help">נשמרת בקובץ ואינה מוצגת בדף הפומבי.</span>`)}
   </div>`;
 }
 
@@ -537,9 +550,10 @@ function summary() {
 }
 
 let dlgFile = "";
-function openDialog(title, text, filename) {
+function openDialog(title, text, filename, note) {
   $("dlgTitle").textContent = title;
   $("dlgText").value = text;
+  $("dlgNote").innerHTML = note;
   dlgFile = filename;
   $("dlg").showModal();
 }
@@ -559,10 +573,23 @@ $("dlgDownload").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
 
-$("btnExport").addEventListener("click", () =>
-  openDialog("organizations.json", JSON.stringify(payloadForExport(), null, 1), "organizations.json"));
-$("btnSummary").addEventListener("click", () =>
-  openDialog("סיכום השינויים", summary(), "changes.txt"));
+$("btnExport").addEventListener("click", () => openDialog(
+  "ייצוא הנתונים",
+  JSON.stringify(payloadForExport(), null, 1),
+  "organizations.json",
+  `<b>זה הקובץ שמעדכן את הדף.</b>
+   <ol>
+     <li>לוחצים <b>הורדה</b> ומקבלים <code>organizations.json</code>.</li>
+     <li>במאגר ב-GitHub נכנסים לתיקייה <code>data</code>.</li>
+     <li>מעלים את הקובץ במקום הקובץ הקיים ושומרים (Commit).</li>
+     <li>הדף נבנה מחדש מעצמו תוך כדקה.</li>
+   </ol>`));
+
+$("btnSummary").addEventListener("click", () => openDialog(
+  "סיכום השינויים",
+  summary(),
+  "changes.txt",
+  "רשימה לקריאה בלבד, נוחה לבדיקה לפני העלאה. כדי לעדכן את הדף יש להשתמש בכפתור <b>ייצוא</b>."));
 
 /* ----------------------------------------------------------------- load */
 $("btnLoad").addEventListener("click", () => $("fileInput").click());

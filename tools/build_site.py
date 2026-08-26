@@ -11,6 +11,7 @@
     python3 tools/build_site.py
 """
 import base64
+import copy
 import datetime
 import json
 import os
@@ -63,6 +64,13 @@ def main():
     with open(DATA, encoding="utf-8") as f:
         payload = json.load(f)
 
+    # כלי העריכה מקבל את הנתונים המלאים, כדי שייצוא ממנו לא ישמיט שדות
+    editor = embed(EDITOR_TEMPLATE, payload)
+    with open(EDITOR_OUT, "w", encoding="utf-8") as f:
+        f.write(editor)
+
+    # הדף הפומבי מקבל עותק מופשט
+    payload = copy.deepcopy(payload)
     for org in payload["organizations"]:
         for field in BUILD_ONLY:
             org.pop(field, None)
@@ -79,10 +87,6 @@ def main():
     )
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(site)
-
-    editor = embed(EDITOR_TEMPLATE, payload)
-    with open(EDITOR_OUT, "w", encoding="utf-8") as f:
-        f.write(editor)
 
     print(f"נכתב {os.path.relpath(OUT, ROOT)}    — {len(site):,} תווים, "
           f"{len(payload['organizations'])} ארגונים")
