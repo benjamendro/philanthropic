@@ -21,7 +21,7 @@ lets two mappings with different fields share one template.
 | `id` | string | slug of the name, **unique** — used for `#deep-links` and for the editor's change tracking |
 | `name` | string | |
 | `aliases` | string[] | hidden search keys; not displayed (a visible "also known as" line reads like filler) |
-| `relevance` | string | e.g. `ליבה` / `משיק`. Drives the card's edge stripe and badge colour |
+| `relevance` | string | e.g. `ליבה` / `משיק`. Currently build-only (see below): kept in the data, not shown. If shown, it drives the card's edge stripe and badge colour |
 | `type` | string | free text as written in the source |
 | `typeGroup` | string | the consolidated family, six to eight values, the one worth filtering by |
 | `areaText` | string | the activity area exactly as it should read on the card |
@@ -45,6 +45,7 @@ Kept in the JSON, stripped from the published page — including from its source
 | `sources` | per-entry provenance; the page names sources once instead |
 | `isAddition` | this entry was researched rather than supplied |
 | `tagsDerived` | its tags were inferred from the description |
+| `relevance` | the core/adjacent classification of the economic-development mapping; the owner no longer wants it shown (no filter, badge or KPI), but it stays in the data so it can be restored by removing it from `BUILD_ONLY` and re-adding the facet, KPI and editor field in `tools/sites.py` |
 
 `actions[].partnersNote` is also stripped: some survey answers put a sentence
 where a partner list belongs (`אין שותפים רוחביים. סביב פעולות ספציפיות אנו

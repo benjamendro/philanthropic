@@ -21,7 +21,9 @@ fields   שדות שכלי העריכה מציג, בסדר הזה.
 
 # שדות שהם מטא על תהליך הבנייה ולא מידע על הארגון. נשמרים בקובץ הנתונים
 # ואינם נכללים בדף הפומבי — גם לא בקוד המקור שלו.
-BUILD_ONLY = ("internalNote", "sources", "isAddition", "tagsDerived")
+# relevance (ליבה/משיק) נשאר בנתונים אך אינו מוצג עוד; כדי להחזיר את הסיווג
+# מסירים אותו מכאן ומחזירים את המסנן, המדד ושדה העריכה ב-SITES.
+BUILD_ONLY = ("internalNote", "sources", "isAddition", "tagsDerived", "relevance")
 
 # שדות עריכה שמופיעים כמעט בכל מיפוי
 COMMON_FIELDS = ["name", "areaText", "places", "tags", "intro", "actions",
@@ -41,7 +43,6 @@ SITES = [
                    "גיידסטאר, מרשם העמותות ומקורות פתוחים",
         "tagsTitle": "תגיות נפוצות",
         "facets": [
-            {"key": "relevance", "label": "רלוונטיות", "all": "הכול"},
             {"key": "typeGroup", "label": "סוג הגוף", "all": "כל הסוגים"},
             {"key": "scope", "label": "היקף הפעילות", "all": "כל ההיקפים",
              "order": ["גליל מזרחי", "צפון והגליל", "ארצי"]},
@@ -50,13 +51,12 @@ SITES = [
         ],
         "kpis": [
             {"label": "ארגונים", "kind": "count"},
-            {"label": "ליבה", "kind": "equals", "key": "relevance", "value": "ליבה"},
             {"label": "בגליל המזרחי", "kind": "equals", "key": "scope",
              "value": "גליל מזרחי"},
             {"label": "פעולות ותוכניות", "kind": "actions"},
         ],
         "meta": [],
-        "fields": ["name", "relevance", "typeGroup", "type", "scope", "areaText",
+        "fields": ["name", "typeGroup", "type", "scope", "areaText",
                    "places", "tags", "intro", "actions", "note", "website",
                    "internalNote"],
     },

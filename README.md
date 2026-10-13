@@ -101,11 +101,11 @@ Settings → Pages → Source: `Deploy from a branch`, ענף `main`, תיקיי
 index.html?scope=גליל מזרחי
 index.html?tag=תעסוקה והשמות,הכשרות
 index.html?place=קריית שמונה
-index.html?relevance=ליבה&q=חדשנות
+index.html?q=חדשנות
 index.html#<מזהה-ארגון>          פותח כרטיס מסוים
 ```
 
-הפרמטרים הנתמכים: `q`, `relevance`, `type`, `scope`, `place`, `tag`
+הפרמטרים הנתמכים: `q`, `type`, `scope`, `place`, `tag`
 (מופרד בפסיקים).
 
 ## מה נעשה בנתונים
