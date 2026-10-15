@@ -3,18 +3,22 @@ name: בניית הדף
 # מריץ מחדש את בניית index.html ו-editor.html בכל פעם שהנתונים או התבניות
 # משתנים, ודוחף את התוצאה חזרה לענף. כך אפשר לערוך בעורך, להעלות את
 # organizations.json למאגר, והדף מתעדכן מעצמו.
+#
+# ב-main הוא גם מעדכן את ריפו השיתוף (SHARE_REPO) – הדפים והנתונים בלי
+# ההערות הפנימיות. ראו "ריפו השיתוף" ב-README.
 on:
   push:
     paths:
       - "data/*.json"
-      - "tools/template.html"
-      - "tools/editor_template.html"
-      - "tools/build_site.py"
-      - "tools/sites.py"
+      - "tools/**"
+      - ".github/workflows/publish.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
+
+env:
+  SHARE_REPO: benjamendro/galilee-mappings
 
 jobs:
   build:
@@ -42,3 +46,25 @@ jobs:
           git add index.html editor.html young/
           git commit -m "בנייה מחדש של הדף מתוך הנתונים"
           git push
+
+      - name: עדכון ריפו השיתוף
+        if: github.ref == 'refs/heads/main'
+        env:
+          TOKEN: ${{ secrets.SHARE_REPO_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::הסוד SHARE_REPO_TOKEN לא הוגדר, ולכן ריפו השיתוף לא עודכן. ראו README."
+            exit 0
+          fi
+          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/${SHARE_REPO}.git" share
+          python3 tools/export_share.py share
+          cd share
+          git add -A
+          if git diff --cached --quiet; then
+            echo "אין שינוי בריפו השיתוף."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "עדכון מתוך מאגר העבודה (${GITHUB_SHA::7})"
+          git push origin HEAD:main

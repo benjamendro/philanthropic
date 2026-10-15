@@ -159,6 +159,15 @@ keys, `tag`) so it can open pre-filtered, and `#id` opens one card.
 template changes, so the owner publishes by dropping the exported JSON into
 `data/` — no round trip through anyone else.
 
+This repo is the private working repo. On `main` the same workflow runs
+`tools/export_share.py` and pushes the public pages plus the stripped data
+(`public_payload` in `build_site.py`) to the public share repo named in
+`SHARE_REPO`; external partners and their AI agent read only that one. Never
+put editors, source files or `BUILD_ONLY` fields there. A new mapping reaches
+the share repo by being in `SITES`; nothing else needs wiring. The export fails
+on anything that looks like a phone number or email — fix the data, do not
+loosen the check.
+
 ## Verify in a browser before saying it works
 
 Run the pages in Chromium and check: no console errors, no horizontal overflow

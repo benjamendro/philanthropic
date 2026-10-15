@@ -75,6 +75,18 @@ def write(path, text):
     return len(text)
 
 
+def public_payload(payload):
+    """עותק מופשט של הנתונים – מה שמותר לפרסם. משמש את הדף ואת ריפו השיתוף."""
+    public = copy.deepcopy(payload)
+    for org in public["organizations"]:
+        for field in BUILD_ONLY:
+            org.pop(field, None)
+        # חלק מתשובות "בשיתוף" בקובץ המקור הן משפט ולא רשימת שותפים
+        for action in org["actions"]:
+            action.pop("partnersNote", None)
+    return public
+
+
 def build(cfg):
     with open(os.path.join(ROOT, cfg["data"]), encoding="utf-8") as f:
         payload = json.load(f)
@@ -88,13 +100,7 @@ def build(cfg):
         EDITOR_TEMPLATE, payload, client_cfg, TITLE=cfg["title"]))
 
     # הדף הפומבי מקבל עותק מופשט
-    public = copy.deepcopy(payload)
-    for org in public["organizations"]:
-        for field in BUILD_ONLY:
-            org.pop(field, None)
-        # חלק מתשובות "בשיתוף" בקובץ המקור הן משפט ולא רשימת שותפים
-        for action in org["actions"]:
-            action.pop("partnersNote", None)
+    public = public_payload(payload)
 
     today = datetime.date.today()
     site_size = write(cfg["out"], embed(
